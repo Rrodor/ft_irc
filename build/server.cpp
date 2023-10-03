@@ -6,7 +6,7 @@
 /*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/02 15:42:13 by rrodor            #+#    #+#             */
-/*   Updated: 2023/10/02 16:18:53 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/10/03 16:05:17 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,11 @@
 #include <cstring>
 #include <sys/socket.h>
 #include <unistd.h>
-#define PORT 8080
+#include <iostream>
+#include <arpa/inet.h>
+#include "../User.hpp"
+
+#define BUFFSIZE 1024
 
 int main(int argc, char const* argv[])
 {
@@ -27,9 +31,14 @@ int main(int argc, char const* argv[])
 	struct sockaddr_in address;
 	int opt = 1;
 	int addrlen = sizeof(address);
-	char buffer[1024] = { 0 };
+	char	buffer[BUFFSIZE + 1];
 	std::string hello = "Hello from server";
 
+	if (argc != 3)
+	{
+		std::cout << "missing argument" <<std::endl;
+		return 0;
+	}
 	// Creating socket file descriptor
 	if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 	{
@@ -44,8 +53,8 @@ int main(int argc, char const* argv[])
 		exit(EXIT_FAILURE);
 	}
 	address.sin_family = AF_INET;
-	address.sin_addr.s_addr = INADDR_ANY;
-	address.sin_port = htons(PORT);
+	address.sin_addr.s_addr = inet_addr(argv[1]);
+	address.sin_port = htons(std::atoi(argv[2]));
 
 	// Forcefully attaching socket to the port 8080
 	if (bind(server_fd, (struct sockaddr*)&address, sizeof(address)) < 0)
@@ -63,10 +72,16 @@ int main(int argc, char const* argv[])
 		perror("accept");
 		exit(EXIT_FAILURE);
 	}
-	valread = read(new_socket, buffer, 1024);
-	printf("%s\n", buffer);
-	send(new_socket, hello.c_str(), hello.size(), 0);
-	printf("Hello message sent\n");
+	User user(new_socket);
+	while (1)
+	{
+		valread = read(new_socket, buffer, BUFFSIZE);
+		std::cout << "message : " << buffer;
+		bzero(buffer, BUFFSIZE);
+		printf("message : %s|||\n", buffer);
+		send(new_socket, hello.c_str(), hello.size(), 0);
+		printf("Hello message sent\n");
+	}
 
 	// closing the connected socket
 	close(new_socket);

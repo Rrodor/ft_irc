@@ -6,7 +6,7 @@
 /*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/02 15:49:32 by rrodor            #+#    #+#             */
-/*   Updated: 2023/10/02 16:19:50 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/10/03 14:43:09 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,11 +49,13 @@ int main(int argc, char const* argv[])
 		printf("\nConnection Failed \n");
 		return -1;
 	}
-	send(client_fd, hello.c_str(), hello.size(), 0);
-	printf("Hello message sent\n");
-	valread = read(client_fd, buffer, 1024);
-	printf("%s\n", buffer);
-
+	while (1)
+	{
+		send(client_fd, hello.c_str(), hello.size(), 0);
+		printf("Hello message sent\n");
+		valread = read(client_fd, buffer, 1024);
+		printf("%s\n", buffer);
+	}
 	// closing the connected socket
 	close(client_fd);
 	return 0;

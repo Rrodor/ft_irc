@@ -3,20 +3,20 @@ SRC := $(filter-out ./build/client.cpp, $(SRC))
 
 CLIENT = ./build/client.cpp
 
-NAME = irc
+NAME = ircserv
 OBJ_DIR = obj
 OBJ = $(patsubst ./build/%.cpp, $(OBJ_DIR)/%.o, $(SRC))
 
 all: $(NAME)
 
 client: $(OBJ)
-	c++ -Wall -Wextra -Werror -g -std=c++98 $(CLIENT) -o client
+	c++ -g -std=c++98 $(CLIENT) -o client
 
 $(NAME): $(OBJ)
-	c++ -Wall -Wextra -Werror -g -std=c++98 $(OBJ) -o $(NAME)
+	c++ -g -std=c++98 $(OBJ) -o $(NAME)
 
 $(OBJ_DIR)/%.o: ./build/%.cpp | $(OBJ_DIR)
-	c++ -Wall -Wextra -Werror -g -std=c++98 -c $< -o $@
+	c++ -g -std=c++98 -c $< -o $@
 
 $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
