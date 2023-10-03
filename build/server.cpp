@@ -6,12 +6,10 @@
 /*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/02 15:42:13 by rrodor            #+#    #+#             */
-/*   Updated: 2023/10/03 19:58:39 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/10/03 20:14:52 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-// Server side C/C++ program to demonstrate Socket
-// programming
 #include <netinet/in.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -53,15 +51,16 @@ void	getorder(char* buffer, User &user)
 {
 	if (strcmp(buffer, "/nick") == 0)
 	{
-		send(user.getFd(), "Enter a nickname : ", 20, 0);
+		send(user.getFd(), "Enter a nickname: ", 19, 0);
 		bzero(buffer, BUFFSIZE);
 		read(user.getFd(), buffer, BUFFSIZE);
 		buffer[strlen(buffer) - 1] = '\0';
 		user.setNickname(buffer);
+		bzero(buffer, BUFFSIZE);
 	}
 	else if (strcmp(buffer, "/quit") == 0)
 	{
-		send(user.getFd(), "Quit server : ", 15, 0);
+		send(user.getFd(), "Quit server: ", 15, 0);
 		close(user.getFd());
 		user.setFd(-1);
 	}
@@ -82,14 +81,12 @@ int main(int argc, char const* argv[])
 		std::cout << "missing argument" <<std::endl;
 		return 0;
 	}
-	// Creating socket file descriptor
 	if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 	{
 		perror("socket failed");
 		exit(EXIT_FAILURE);
 	}
 
-	// Forcefully attaching socket to the port 8080
 	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt)))
 	{
 		perror("setsockopt");
@@ -99,7 +96,6 @@ int main(int argc, char const* argv[])
 	address.sin_addr.s_addr = inet_addr("127.0.0.1");
 	address.sin_port = htons(std::atoi(argv[1]));
 
-	// Forcefully attaching socket to the port 8080
 	if (bind(server_fd, (struct sockaddr*)&address, sizeof(address)) < 0)
 	{
 		perror("bind failed");
@@ -127,7 +123,7 @@ int main(int argc, char const* argv[])
 		}
 		if (user.getName().empty())
 		{
-			send(new_socket, "Enter a name :", 15, 0);
+			send(new_socket, "Enter a name: ", 15, 0);
 			valread = read(new_socket, buffer, BUFFSIZE);
 			buffer[valread - 1] = '\0';
 			user.setName(buffer);
@@ -135,7 +131,7 @@ int main(int argc, char const* argv[])
 		}
 		if (user.getNickname().empty())
 		{
-			send(new_socket, "Enter a nickname : ", 20, 0);
+			send(new_socket, "Enter a nickname: ", 19, 0);
 			valread = read(new_socket, buffer, BUFFSIZE);
 			buffer[valread - 1] = '\0';
 			user.setNickname(buffer);
@@ -143,17 +139,17 @@ int main(int argc, char const* argv[])
 		}
 		send(new_socket, "> ", 2, 0);
 		valread = read(new_socket, buffer, BUFFSIZE);
-		buffer[valread - 1] = '\0';
 		if (buffer[0] == '/')
+		{
+			buffer[valread - 1] = '\0';
 			getorder(buffer, user);
+		}
 		else
 			std::cout << user.getNickname() << " : " << buffer;
 		bzero(buffer, BUFFSIZE);
 	}
 
-	// closing the connected socket
 	close(new_socket);
-	// closing the listening socket
 	shutdown(server_fd, SHUT_RDWR);
 	return 0;
 }
