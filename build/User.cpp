@@ -6,11 +6,11 @@
 /*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 15:56:20 by rrodor            #+#    #+#             */
-/*   Updated: 2023/10/03 15:58:42 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/10/03 16:32:27 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "User.hpp"
+#include "../User.hpp"
 
 User::User(int fd) : _fd(fd)
 {
@@ -30,11 +30,6 @@ std::string User::getNickname()
 	return _nickname;
 }
 
-std::string User::getPassword()
-{
-	return _password;
-}
-
 int			User::getFd()
 {
 	return _fd;
@@ -43,11 +38,6 @@ int			User::getFd()
 void		User::setName(std::string name)
 {
 	_name = name;
-}
-
-void		User::setPassword(std::string password)
-{
-	_password = password;
 }
 
 void		User::setNickname(std::string nickname)

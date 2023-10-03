@@ -6,7 +6,7 @@
 /*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/02 15:42:13 by rrodor            #+#    #+#             */
-/*   Updated: 2023/10/03 16:05:17 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/10/03 16:45:09 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,14 +73,30 @@ int main(int argc, char const* argv[])
 		exit(EXIT_FAILURE);
 	}
 	User user(new_socket);
+	user.setName("");
 	while (1)
 	{
+		if (user.getName().empty())
+		{
+			send(new_socket, "Enter a name :", 15, 0);
+			valread = read(new_socket, buffer, BUFFSIZE);
+			buffer[valread - 1] = '\0';
+			user.setName(buffer);
+			bzero(buffer, BUFFSIZE);
+		}
+		if (user.getNickname().empty())
+		{
+			send(new_socket, "Enter a nickname : ", 20, 0);
+			valread = read(new_socket, buffer, BUFFSIZE);
+			buffer[valread - 1] = '\0';
+			user.setNickname(buffer);
+			bzero(buffer, BUFFSIZE);
+		}
+		send(new_socket, "> ", 2, 0);
 		valread = read(new_socket, buffer, BUFFSIZE);
-		std::cout << "message : " << buffer;
+		std::cout << user.getNickname() << " : " << buffer;
 		bzero(buffer, BUFFSIZE);
-		printf("message : %s|||\n", buffer);
-		send(new_socket, hello.c_str(), hello.size(), 0);
-		printf("Hello message sent\n");
+		//printf("Hello message sent\n");
 	}
 
 	// closing the connected socket
