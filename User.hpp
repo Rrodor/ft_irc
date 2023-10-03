@@ -6,7 +6,7 @@
 /*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 15:15:56 by rrodor            #+#    #+#             */
-/*   Updated: 2023/10/03 16:23:11 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/10/03 19:38:26 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,4 +28,5 @@ class User
 		int			getFd();
 		void		setName(std::string name);
 		void		setNickname(std::string nickname);
+		void		setFd(int fd);
 };

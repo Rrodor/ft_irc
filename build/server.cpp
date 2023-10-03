@@ -6,7 +6,7 @@
 /*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/02 15:42:13 by rrodor            #+#    #+#             */
-/*   Updated: 2023/10/03 16:45:09 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/10/03 19:58:39 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,50 @@
 
 #define BUFFSIZE 1024
 
+void	connection(int fd, std::string password)
+{
+	char	buffer[BUFFSIZE + 1];
+	int		valread;
+	bool	connected = false;
+
+	while (!connected)
+	{
+		send(fd, "Enter the password: ", 20, 0);
+		valread = read(fd, buffer, BUFFSIZE);
+		buffer[valread - 1] = '\0';
+		if (password.compare(buffer) == 0)
+		{
+			send(fd, "Welcome to the server\n", 22, 0);
+			connected = true;
+		}
+		else
+		{
+			bzero(buffer, BUFFSIZE);
+			send(fd, "Wrong password.\n", 17, 0);
+		}
+	}
+}
+
+void	getorder(char* buffer, User &user)
+{
+	if (strcmp(buffer, "/nick") == 0)
+	{
+		send(user.getFd(), "Enter a nickname : ", 20, 0);
+		bzero(buffer, BUFFSIZE);
+		read(user.getFd(), buffer, BUFFSIZE);
+		buffer[strlen(buffer) - 1] = '\0';
+		user.setNickname(buffer);
+	}
+	else if (strcmp(buffer, "/quit") == 0)
+	{
+		send(user.getFd(), "Quit server : ", 15, 0);
+		close(user.getFd());
+		user.setFd(-1);
+	}
+	else
+		send(user.getFd(), "Unknown command\n", 18, 0);
+}
+
 int main(int argc, char const* argv[])
 {
 	int server_fd, new_socket, valread;
@@ -32,7 +76,6 @@ int main(int argc, char const* argv[])
 	int opt = 1;
 	int addrlen = sizeof(address);
 	char	buffer[BUFFSIZE + 1];
-	std::string hello = "Hello from server";
 
 	if (argc != 3)
 	{
@@ -53,8 +96,8 @@ int main(int argc, char const* argv[])
 		exit(EXIT_FAILURE);
 	}
 	address.sin_family = AF_INET;
-	address.sin_addr.s_addr = inet_addr(argv[1]);
-	address.sin_port = htons(std::atoi(argv[2]));
+	address.sin_addr.s_addr = inet_addr("127.0.0.1");
+	address.sin_port = htons(std::atoi(argv[1]));
 
 	// Forcefully attaching socket to the port 8080
 	if (bind(server_fd, (struct sockaddr*)&address, sizeof(address)) < 0)
@@ -74,8 +117,14 @@ int main(int argc, char const* argv[])
 	}
 	User user(new_socket);
 	user.setName("");
+	connection(user.getFd(), argv[2]);
 	while (1)
 	{
+		if (user.getFd() == -1)
+		{
+			std::cout << "test" << std::endl;
+			break;
+		}
 		if (user.getName().empty())
 		{
 			send(new_socket, "Enter a name :", 15, 0);
@@ -94,9 +143,12 @@ int main(int argc, char const* argv[])
 		}
 		send(new_socket, "> ", 2, 0);
 		valread = read(new_socket, buffer, BUFFSIZE);
-		std::cout << user.getNickname() << " : " << buffer;
+		buffer[valread - 1] = '\0';
+		if (buffer[0] == '/')
+			getorder(buffer, user);
+		else
+			std::cout << user.getNickname() << " : " << buffer;
 		bzero(buffer, BUFFSIZE);
-		//printf("Hello message sent\n");
 	}
 
 	// closing the connected socket
