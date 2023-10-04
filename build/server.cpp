@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
+/*   By: cparras <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/02 15:42:13 by rrodor            #+#    #+#             */
-/*   Updated: 2023/10/03 20:14:52 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/10/04 17:50:16 by cparras          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,49 +23,41 @@
 
 #define BUFFSIZE 1024
 
-void	connection(int fd, std::string password)
+void	displayHelp(User &user)
 {
-	char	buffer[BUFFSIZE + 1];
-	int		valread;
-	bool	connected = false;
-
-	while (!connected)
-	{
-		send(fd, "Enter the password: ", 20, 0);
-		valread = read(fd, buffer, BUFFSIZE);
-		buffer[valread - 1] = '\0';
-		if (password.compare(buffer) == 0)
-		{
-			send(fd, "Welcome to the server\n", 22, 0);
-			connected = true;
-		}
-		else
-		{
-			bzero(buffer, BUFFSIZE);
-			send(fd, "Wrong password.\n", 17, 0);
-		}
-	}
+	send(user.getFd(), "List of commands:\n", 18, 0);
+	send(user.getFd(), "/nick: change your nickname\n", 28, 0);
+	send(user.getFd(), "/quit: quit the server\n", 24, 0);
 }
 
 void	getorder(char* buffer, User &user)
 {
+	int	valread;
 	if (strcmp(buffer, "/nick") == 0)
 	{
 		send(user.getFd(), "Enter a nickname: ", 19, 0);
 		bzero(buffer, BUFFSIZE);
-		read(user.getFd(), buffer, BUFFSIZE);
-		buffer[strlen(buffer) - 1] = '\0';
-		user.setNickname(buffer);
-		bzero(buffer, BUFFSIZE);
+		valread = read(user.getFd(), buffer, BUFFSIZE);
+		if (valread == 1)
+			user.setHasNickname(false);
+		else
+		{
+			buffer[strlen(buffer) - 1] = '\0';
+			
+			user.setNickname(buffer);
+			bzero(buffer, BUFFSIZE);
+		}
 	}
 	else if (strcmp(buffer, "/quit") == 0)
 	{
-		send(user.getFd(), "Quit server: ", 15, 0);
+		send(user.getFd(), "Quit server: ", 14, 0);
 		close(user.getFd());
 		user.setFd(-1);
 	}
+	else if (strcmp(buffer, "/help") == 0)
+		displayHelp(user);
 	else
-		send(user.getFd(), "Unknown command\n", 18, 0);
+		send(user.getFd(), "Unknown command\n/help for list of commands\n", 44, 0);
 }
 
 int main(int argc, char const* argv[])
@@ -78,7 +70,7 @@ int main(int argc, char const* argv[])
 
 	if (argc != 3)
 	{
-		std::cout << "missing argument" <<std::endl;
+		std::cout << "Usage: ./ircserv [port] [password]"<<std::endl;
 		return 0;
 	}
 	if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
@@ -111,32 +103,10 @@ int main(int argc, char const* argv[])
 		perror("accept");
 		exit(EXIT_FAILURE);
 	}
-	User user(new_socket);
-	user.setName("");
-	connection(user.getFd(), argv[2]);
+	User user = init(new_socket, argv[2]);
 	while (1)
 	{
-		if (user.getFd() == -1)
-		{
-			std::cout << "test" << std::endl;
-			break;
-		}
-		if (user.getName().empty())
-		{
-			send(new_socket, "Enter a name: ", 15, 0);
-			valread = read(new_socket, buffer, BUFFSIZE);
-			buffer[valread - 1] = '\0';
-			user.setName(buffer);
-			bzero(buffer, BUFFSIZE);
-		}
-		if (user.getNickname().empty())
-		{
-			send(new_socket, "Enter a nickname: ", 19, 0);
-			valread = read(new_socket, buffer, BUFFSIZE);
-			buffer[valread - 1] = '\0';
-			user.setNickname(buffer);
-			bzero(buffer, BUFFSIZE);
-		}
+
 		send(new_socket, "> ", 2, 0);
 		valread = read(new_socket, buffer, BUFFSIZE);
 		if (buffer[0] == '/')
@@ -145,7 +115,12 @@ int main(int argc, char const* argv[])
 			getorder(buffer, user);
 		}
 		else
-			std::cout << user.getNickname() << " : " << buffer;
+		{
+			if (user.getNickname().empty())
+				std::cout << user.getName() << " : " << buffer;
+			else
+				std::cout << user.getNickname() << " : " << buffer;
+		}
 		bzero(buffer, BUFFSIZE);
 	}
 

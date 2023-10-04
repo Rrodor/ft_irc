@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   User.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
+/*   By: cparras <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 15:56:20 by rrodor            #+#    #+#             */
-/*   Updated: 2023/10/03 19:38:30 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/10/04 15:47:18 by cparras          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../User.hpp"
 
-User::User(int fd) : _fd(fd)
+User::User(int fd) : _fd(fd), _hasNickname(false)
 {
 }
 
@@ -28,6 +28,11 @@ std::string User::getName()
 std::string User::getNickname()
 {
 	return _nickname;
+}
+
+bool		User::getHasNickname()
+{
+	return _hasNickname;
 }
 
 int			User::getFd()
@@ -48,4 +53,9 @@ void		User::setNickname(std::string nickname)
 void		User::setFd(int fd)
 {
 	_fd = fd;
+}
+
+void		User::setHasNickname(bool hasNickname)
+{
+	_hasNickname = hasNickname;
 }
