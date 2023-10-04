@@ -6,7 +6,7 @@
 /*   By: cparras <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/04 16:17:50 by cparras           #+#    #+#             */
-/*   Updated: 2023/10/04 18:06:36 by cparras          ###   ########.fr       */
+/*   Updated: 2023/10/04 18:54:51 by cparras          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,9 @@
 bool	checkEmptyName(char *src)
 {
 	int i = 0;
+	
+	if (!isprint(src[0]))
+		return	false;
 	while (src[i])
 	{
 		if (src[i] != ' ' && src[i] != '\t' && src[i] != '\n' && src[i] != '\0')
@@ -53,12 +56,15 @@ void	initName(User &user, int new_socket)
 	int		valread;
 	char	buffer[BUFFSIZE + 1];
 
-	while (true)
+	while (1)
 	{
+		bzero(buffer, BUFFSIZE);
 		send(new_socket, "Enter a name: ", 15, 0);
 		valread = read(new_socket, buffer, BUFFSIZE);
-		if (valread != 1 && checkEmptyName(buffer) == true)
-			false ;
+		if (checkEmptyName(buffer) == true)
+			break ;
+		buffer[valread - 1] = '\0';
+		bzero(buffer, BUFFSIZE);
 	}
 	buffer[valread - 1] = '\0';
 	user.setName(buffer);
@@ -80,6 +86,7 @@ void	connection(int fd, std::string password)
 		{
 			send(fd, "Welcome to the server\n", 23, 0);
 			connected = true;
+			bzero(buffer, BUFFSIZE);
 		}
 		else
 		{
