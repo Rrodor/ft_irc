@@ -6,7 +6,7 @@
 /*   By: cparras <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/02 15:42:13 by rrodor            #+#    #+#             */
-/*   Updated: 2023/10/04 17:50:16 by cparras          ###   ########.fr       */
+/*   Updated: 2023/10/04 19:06:57 by cparras          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,8 @@
 
 void	displayHelp(User &user)
 {
-	send(user.getFd(), "List of commands:\n", 18, 0);
-	send(user.getFd(), "/nick: change your nickname\n", 28, 0);
+	send(user.getFd(), "List of commands:\n", 19, 0);
+	send(user.getFd(), "/nick: change your nickname\n", 29, 0);
 	send(user.getFd(), "/quit: quit the server\n", 24, 0);
 }
 
@@ -106,7 +106,7 @@ int main(int argc, char const* argv[])
 	User user = init(new_socket, argv[2]);
 	while (1)
 	{
-
+		bzero(buffer, BUFFSIZE);
 		send(new_socket, "> ", 2, 0);
 		valread = read(new_socket, buffer, BUFFSIZE);
 		if (buffer[0] == '/')
@@ -117,9 +117,9 @@ int main(int argc, char const* argv[])
 		else
 		{
 			if (user.getNickname().empty())
-				std::cout << user.getName() << " : " << buffer;
+				std::cout << user.getName() << ": " << buffer;
 			else
-				std::cout << user.getNickname() << " : " << buffer;
+				std::cout << user.getNickname() << ": " << buffer;
 		}
 		bzero(buffer, BUFFSIZE);
 	}
