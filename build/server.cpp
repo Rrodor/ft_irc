@@ -6,7 +6,7 @@
 /*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/02 15:42:13 by rrodor            #+#    #+#             */
-/*   Updated: 2023/10/05 16:23:36 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/10/05 19:13:56 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,9 +32,10 @@ void	displayHelp(User &user)
 	send(user.getFd(), "/quit: quit the server\n", 24, 0);
 }
 
-void	getorder(char* buffer, User &user, std::vector<Channel> &channels)
+void	getorder(char* buffer, User &user, std::map<std::string, Channel> &channels)
 {
 	int	valread;
+	std::string str;
 	if (strcmp(buffer, "/nick") == 0)
 	{
 		send(user.getFd(), "Enter a nickname: ", 19, 0);
@@ -45,20 +46,38 @@ void	getorder(char* buffer, User &user, std::vector<Channel> &channels)
 		else
 		{
 			buffer[strlen(buffer) - 1] = '\0';
-
 			user.setNickname(buffer);
 			bzero(buffer, BUFFSIZE);
 		}
 	}
-	else if (strcmp(buffer, "/channel_c") == 0)
+	else if (strcmp(buffer, "/channel -c") == 0)
 	{
-		std::cout << "current channel is : " << user.getChannel().getName() << std::endl;
+		str = "current channel is: " + user.getChannel().getName() + "\n";
+		send(user.getFd(), str.c_str(), str.length(), 0);
 	}
-	else if (strcmp(buffer, "/channel_l") == 0)
+	else if (strcmp(buffer, "/channel -l") == 0)
 	{
-		std::cout << "List of channels:" << std::endl;
-		for (std::vector<Channel>::iterator it = channels.begin(); it != channels.end(); ++it)
-			std::cout << "\t-" << it->getName() << std::endl;
+		str = "List of channels:\n";
+		for (std::map<std::string, Channel>::iterator it = channels.begin(); it != channels.end(); ++it)
+			str += "\t-" + it->first + "\n";
+		send(user.getFd(), str.c_str(), str.length(), 0);
+	}
+	else if (strcmp(buffer, "/channel -s") == 0)
+	{
+		bzero(buffer, BUFFSIZE);
+		send(user.getFd(), "Enter a channel name: ", 22, 0);
+		valread = read(user.getFd(), buffer, BUFFSIZE);
+		buffer[valread - 1] = '\0';
+		str = buffer;
+		user.setChannel(channels[str]);
+		if (channels[str].getName() == "default")
+		{
+			Channel newChannel = Channel(str, str);
+			channels.insert(std::pair<std::string, Channel>(str, newChannel));
+			user.setChannel(newChannel);
+		}
+		else
+			user.setChannel(channels[str]);
 	}
 	else if (strcmp(buffer, "/quit") == 0)
 	{
@@ -74,12 +93,12 @@ void	getorder(char* buffer, User &user, std::vector<Channel> &channels)
 
 int main(int argc, char const* argv[])
 {
-	int server_fd, new_socket, valread;
-	struct sockaddr_in address;
-	int opt = 1;
-	int addrlen = sizeof(address);
-	char	buffer[BUFFSIZE + 1];
-	std::vector<Channel> channels;
+	int								server_fd, new_socket, valread;
+	struct sockaddr_in				address;
+	int								opt = 1;
+	int								addrlen = sizeof(address);
+	char							buffer[BUFFSIZE + 1];
+	std::map<std::string, Channel>	channels;
 
 	if (argc != 3)
 	{
@@ -117,8 +136,8 @@ int main(int argc, char const* argv[])
 		exit(EXIT_FAILURE);
 	}
 	User user = init(new_socket, argv[2]);
-	channels.push_back(Channel("general", "general"));
-	user.setChannel(channels[0]);
+	channels.insert(std::pair<std::string, Channel>("general", Channel("general", "general")));
+	user.setChannel(channels["general"]);
 	while (1)
 	{
 		bzero(buffer, BUFFSIZE);
@@ -132,9 +151,9 @@ int main(int argc, char const* argv[])
 		else
 		{
 			if (user.getNickname().empty())
-				std::cout << user.getName() << ": " << buffer;
+				std::cout << user.getName() << " in " << user.getChannel().getName() << ": " << buffer;
 			else
-				std::cout << user.getNickname() << ": " << buffer;
+				std::cout << user.getNickname() << " in " << user.getChannel().getName() << ": " << buffer;
 		}
 		bzero(buffer, BUFFSIZE);
 	}
