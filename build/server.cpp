@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: babreton <babreton@student.42perpignan.fr> +#+  +:+       +#+        */
+/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/02 15:42:13 by rrodor            #+#    #+#             */
-/*   Updated: 2023/10/05 16:04:16 by babreton         ###   ########.fr       */
+/*   Updated: 2023/10/05 16:23:36 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 #include <unistd.h>
 #include <iostream>
 #include <arpa/inet.h>
+#include <vector>
 #include "../includes/Channel.hpp"
 #include "../includes/User.hpp"
 
@@ -31,7 +32,7 @@ void	displayHelp(User &user)
 	send(user.getFd(), "/quit: quit the server\n", 24, 0);
 }
 
-void	getorder(char* buffer, User &user)
+void	getorder(char* buffer, User &user, std::vector<Channel> &channels)
 {
 	int	valread;
 	if (strcmp(buffer, "/nick") == 0)
@@ -49,9 +50,15 @@ void	getorder(char* buffer, User &user)
 			bzero(buffer, BUFFSIZE);
 		}
 	}
-	else if (strcmp(buffer, "/channel") == 0)
+	else if (strcmp(buffer, "/channel_c") == 0)
 	{
 		std::cout << "current channel is : " << user.getChannel().getName() << std::endl;
+	}
+	else if (strcmp(buffer, "/channel_l") == 0)
+	{
+		std::cout << "List of channels:" << std::endl;
+		for (std::vector<Channel>::iterator it = channels.begin(); it != channels.end(); ++it)
+			std::cout << "\t-" << it->getName() << std::endl;
 	}
 	else if (strcmp(buffer, "/quit") == 0)
 	{
@@ -72,6 +79,7 @@ int main(int argc, char const* argv[])
 	int opt = 1;
 	int addrlen = sizeof(address);
 	char	buffer[BUFFSIZE + 1];
+	std::vector<Channel> channels;
 
 	if (argc != 3)
 	{
@@ -109,8 +117,8 @@ int main(int argc, char const* argv[])
 		exit(EXIT_FAILURE);
 	}
 	User user = init(new_socket, argv[2]);
-	Channel	c_general = Channel("general", "general");
-	user.setChannel(c_general);
+	channels.push_back(Channel("general", "general"));
+	user.setChannel(channels[0]);
 	while (1)
 	{
 		bzero(buffer, BUFFSIZE);
@@ -119,7 +127,7 @@ int main(int argc, char const* argv[])
 		if (buffer[0] == '/')
 		{
 			buffer[valread - 1] = '\0';
-			getorder(buffer, user);
+			getorder(buffer, user, channels);
 		}
 		else
 		{
