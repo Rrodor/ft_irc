@@ -3,14 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: babreton <babreton@student.42perpignan.fr> +#+  +:+       +#+        */
+/*   By: cparras <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/04 22:02:28 by rrodor            #+#    #+#             */
-/*   Updated: 2023/10/05 16:04:34 by babreton         ###   ########.fr       */
+/*   Updated: 2023/10/05 18:03:10 by cparras          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/Channel.hpp"
+#include "../includes/ft_irc.hpp"
 
 Channel::Channel()
 {

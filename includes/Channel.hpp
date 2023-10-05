@@ -3,18 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
+/*   By: cparras <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/04 19:12:29 by rrodor            #+#    #+#             */
-/*   Updated: 2023/10/04 22:30:00 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/10/05 18:04:47 by cparras          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CHANNEL_HPP
 # define CHANNEL_HPP
-
-#include <string>
-#include <map>
 
 class User;
 
@@ -35,7 +32,5 @@ class Channel
 		void			addUser(User user);
 		void			removeUser(User user);
 };
-
-#include "User.hpp"
 
 #endif

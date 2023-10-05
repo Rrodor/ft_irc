@@ -3,18 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   User.hpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
+/*   By: cparras <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 15:15:56 by rrodor            #+#    #+#             */
-/*   Updated: 2023/10/05 15:49:48 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/10/05 18:04:26 by cparras          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef USER_HPP
 # define USER_HPP
-
-#include <string>
-#include "Channel.hpp"
 
 class Channel;
 
@@ -42,7 +39,5 @@ class User
 };
 
 User	init(int new_socket, const char *password);
-
-//#include "Channel.hpp"
 
 #endif

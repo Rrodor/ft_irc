@@ -3,26 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   Init.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: babreton <babreton@student.42perpignan.fr> +#+  +:+       +#+        */
+/*   By: cparras <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/04 16:17:50 by cparras           #+#    #+#             */
-/*   Updated: 2023/10/05 16:04:49 by babreton         ###   ########.fr       */
+/*   Updated: 2023/10/05 18:04:07 by cparras          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <netinet/in.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string>
-#include <cstring>
-#include <sys/socket.h>
-#include <unistd.h>
-#include <iostream>
-#include <arpa/inet.h>
-#include "../includes/Channel.hpp"
-#include "../includes/User.hpp"
-
-#define BUFFSIZE 1024
+#include "../includes/ft_irc.hpp"
 
 bool	checkEmptyName(char *src)
 {

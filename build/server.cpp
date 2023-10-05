@@ -3,27 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
+/*   By: cparras <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/02 15:42:13 by rrodor            #+#    #+#             */
-/*   Updated: 2023/10/05 16:23:36 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/10/05 18:03:58 by cparras          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <netinet/in.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string>
-#include <cstring>
-#include <sys/socket.h>
-#include <unistd.h>
-#include <iostream>
-#include <arpa/inet.h>
-#include <vector>
-#include "../includes/Channel.hpp"
-#include "../includes/User.hpp"
-
-#define BUFFSIZE 1024
+#include "../includes/ft_irc.hpp"
 
 void	displayHelp(User &user)
 {
