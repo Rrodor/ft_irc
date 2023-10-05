@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Init.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
+/*   By: babreton <babreton@student.42perpignan.fr> +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/04 16:17:50 by cparras           #+#    #+#             */
-/*   Updated: 2023/10/05 15:48:43 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/10/05 16:04:49 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,8 @@
 #include <unistd.h>
 #include <iostream>
 #include <arpa/inet.h>
-#include "../User.hpp"
-#include "../Channel.hpp"
+#include "../includes/Channel.hpp"
+#include "../includes/User.hpp"
 
 #define BUFFSIZE 1024
 

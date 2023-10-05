@@ -3,14 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   User.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
+/*   By: babreton <babreton@student.42perpignan.fr> +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 15:56:20 by rrodor            #+#    #+#             */
-/*   Updated: 2023/10/04 22:29:52 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/10/05 16:04:46 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../User.hpp"
+#include "../includes/User.hpp"
 
 User::User(int fd) : _fd(fd), _hasNickname(false)
 {

@@ -3,14 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
+/*   By: babreton <babreton@student.42perpignan.fr> +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/04 22:02:28 by rrodor            #+#    #+#             */
-/*   Updated: 2023/10/04 22:30:12 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/10/05 16:04:34 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../Channel.hpp"
+#include "../includes/Channel.hpp"
 
 Channel::Channel()
 {
