@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Init.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cparras <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/04 16:17:50 by cparras           #+#    #+#             */
-/*   Updated: 2023/10/04 18:54:51 by cparras          ###   ########.fr       */
+/*   Updated: 2023/10/05 15:48:43 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,13 +20,14 @@
 #include <iostream>
 #include <arpa/inet.h>
 #include "../User.hpp"
+#include "../Channel.hpp"
 
 #define BUFFSIZE 1024
 
 bool	checkEmptyName(char *src)
 {
 	int i = 0;
-	
+
 	if (!isprint(src[0]))
 		return	false;
 	while (src[i])

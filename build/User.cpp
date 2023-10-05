@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   User.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cparras <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 15:56:20 by rrodor            #+#    #+#             */
-/*   Updated: 2023/10/04 15:47:18 by cparras          ###   ########.fr       */
+/*   Updated: 2023/10/04 22:29:52 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,11 @@ int			User::getFd()
 	return _fd;
 }
 
+Channel		User::getChannel()
+{
+	return _channel;
+}
+
 void		User::setName(std::string name)
 {
 	_name = name;
@@ -58,4 +63,9 @@ void		User::setFd(int fd)
 void		User::setHasNickname(bool hasNickname)
 {
 	_hasNickname = hasNickname;
+}
+
+void		User::setChannel(Channel channel)
+{
+	_channel = channel;
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cparras <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/02 15:42:13 by rrodor            #+#    #+#             */
-/*   Updated: 2023/10/04 19:06:57 by cparras          ###   ########.fr       */
+/*   Updated: 2023/10/04 22:24:54 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 #include <unistd.h>
 #include <iostream>
 #include <arpa/inet.h>
+#include "../Channel.hpp"
 #include "../User.hpp"
 
 #define BUFFSIZE 1024
@@ -43,10 +44,14 @@ void	getorder(char* buffer, User &user)
 		else
 		{
 			buffer[strlen(buffer) - 1] = '\0';
-			
+
 			user.setNickname(buffer);
 			bzero(buffer, BUFFSIZE);
 		}
+	}
+	else if (strcmp(buffer, "/channel") == 0)
+	{
+		std::cout << "current channel is : " << user.getChannel().getName() << std::endl;
 	}
 	else if (strcmp(buffer, "/quit") == 0)
 	{
@@ -104,6 +109,8 @@ int main(int argc, char const* argv[])
 		exit(EXIT_FAILURE);
 	}
 	User user = init(new_socket, argv[2]);
+	Channel	c_general = Channel("general", "general");
+	user.setChannel(c_general);
 	while (1)
 	{
 		bzero(buffer, BUFFSIZE);
@@ -123,7 +130,6 @@ int main(int argc, char const* argv[])
 		}
 		bzero(buffer, BUFFSIZE);
 	}
-
 	close(new_socket);
 	shutdown(server_fd, SHUT_RDWR);
 	return 0;
