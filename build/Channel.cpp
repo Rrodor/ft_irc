@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cparras <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: babreton <babreton@student.42perpignan.fr> +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/04 22:02:28 by rrodor            #+#    #+#             */
-/*   Updated: 2023/10/05 18:03:10 by cparras          ###   ########.fr       */
+/*   Updated: 2023/10/06 12:40:24 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/ft_irc.hpp"
 
-Channel::Channel()
+Channel::Channel(): _name("default"), _topic("default")
 {
 }
 
