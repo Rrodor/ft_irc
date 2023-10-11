@@ -1,22 +1,24 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   server.cpp                                         :+:      :+:    :+:   */
+/*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: babreton <babreton@student.42perpignan.fr> +#+  +:+       +#+        */
+/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/06 13:35:22 by babreton          #+#    #+#             */
-/*   Updated: 2023/10/06 14:30:18 by babreton         ###   ########.fr       */
+/*   Updated: 2023/10/11 15:37:13 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/ft_irc.hpp"
 
-Server::Server(const char * port) : _port(std::atoi(port)) {
+Server::Server(const char * port) : _port(std::atoi(port))
+{
 	this->_initServer();
 }
 
-void	Server::_initServer() {
+void	Server::_initServer()
+{
 	int	opt = 1;
 	int	addrlen = sizeof(this->_adress);
 
@@ -37,6 +39,7 @@ void	Server::_initServer() {
 		perror("accept"); exit(EXIT_FAILURE); }
 }
 
-Server::~Server() {
+Server::~Server()
+{
 	shutdown(this->_server, SHUT_RDWR);
 }

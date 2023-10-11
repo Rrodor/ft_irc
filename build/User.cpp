@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   User.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cparras <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 15:56:20 by rrodor            #+#    #+#             */
-/*   Updated: 2023/10/05 18:02:20 by cparras          ###   ########.fr       */
+/*   Updated: 2023/10/11 17:40:57 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,27 +20,27 @@ User::~User()
 {
 }
 
-std::string User::getName()
+std::string User::getName() const
 {
 	return _name;
 }
 
-std::string User::getNickname()
+std::string User::getNickname() const
 {
 	return _nickname;
 }
 
-bool		User::getHasNickname()
+bool		User::getHasNickname() const
 {
 	return _hasNickname;
 }
 
-int			User::getFd()
+int			User::getFd() const
 {
 	return _fd;
 }
 
-Channel		User::getChannel()
+Channel		User::getChannel() const
 {
 	return _channel;
 }
@@ -68,4 +68,14 @@ void		User::setHasNickname(bool hasNickname)
 void		User::setChannel(Channel channel)
 {
 	_channel = channel;
+}
+
+void		User::sendMessage(std::string message) const
+{
+	for (std::map<std::string, User>::iterator it = _channel.getUsers().begin(); it != this->_channel.getUsers().end(); it++)
+	{
+		if (it->first == this->getName())
+			continue;
+		send(it->second.getFd(), message.c_str(), message.length(), 0);
+	}
 }

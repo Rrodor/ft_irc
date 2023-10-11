@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   User.hpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cparras <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 15:15:56 by rrodor            #+#    #+#             */
-/*   Updated: 2023/10/05 18:04:26 by cparras          ###   ########.fr       */
+/*   Updated: 2023/10/11 17:35:40 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,16 +26,17 @@ class User
 	public:
 		User(int fd);
 		~User();
-		std::string getName();
-		std::string getNickname();
-		bool		getHasNickname();
-		int			getFd();
-		Channel		getChannel();
+		std::string getName() const;
+		std::string getNickname() const;
+		bool		getHasNickname() const;
+		int			getFd() const;
+		Channel		getChannel() const;
 		void		setName(std::string name);
 		void		setNickname(std::string nickname);
 		void		setFd(int fd);
 		void		setHasNickname(bool hasNickname);
 		void		setChannel(Channel channel);
+		void		sendMessage(std::string message) const;
 };
 
 User	init(int new_socket, const char *password);

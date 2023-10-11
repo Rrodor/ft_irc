@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cparras <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/04 19:12:29 by rrodor            #+#    #+#             */
-/*   Updated: 2023/10/05 18:04:47 by cparras          ###   ########.fr       */
+/*   Updated: 2023/10/11 17:36:39 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,9 @@ class Channel
 		Channel();
 		Channel(std::string name, std::string topic);
 		~Channel();
-		std::string		getName();
-		std::string		getTopic();
+		std::string					getName() const;
+		std::string					getTopic() const;
+		std::map<std::string, User>	getUsers() const;
 		void			setName(std::string name);
 		void			setTopic(std::string topic);
 		void			addUser(User user);

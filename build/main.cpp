@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: babreton <babreton@student.42perpignan.fr> +#+  +:+       +#+        */
+/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/02 15:42:13 by rrodor            #+#    #+#             */
-/*   Updated: 2023/10/06 14:31:39 by babreton         ###   ########.fr       */
+/*   Updated: 2023/10/11 17:34:50 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,9 +108,15 @@ int main(int argc, char const* argv[])
 		else
 		{
 			if (user.getNickname().empty())
+			{
 				std::cout << user.getName() << " in " << user.getChannel().getName() << ": " << buffer;
+				user.sendMessage(buffer);
+			}
 			else
+			{
 				std::cout << user.getNickname() << " in " << user.getChannel().getName() << ": " << buffer;
+				user.sendMessage(buffer);
+			}
 		}
 		bzero(buffer, BUFFSIZE);
 	}
