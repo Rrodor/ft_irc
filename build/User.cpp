@@ -6,13 +6,29 @@
 /*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 15:56:20 by rrodor            #+#    #+#             */
-/*   Updated: 2023/10/11 17:40:57 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/10/16 18:49:15 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/ft_irc.hpp"
 
-User::User(int fd) : _fd(fd), _hasNickname(false)
+/*User::User() : _fd(0), _hasNickname(false)
+{
+	Channel channel("default", "default");
+	_channel = channel;
+}*/
+
+User & User::operator=(const User & ref)
+{
+	_fd = ref.getFd();
+	_name = ref.getName();
+	_nickname = ref.getNickname();
+	_hasNickname = ref.getHasNickname();
+	_channel = ref.getChannel();
+	return *this;
+}
+
+User::User(int & fd, Channel &channel) : _fd(fd), _hasNickname(false), _channel(channel)
 {
 }
 
@@ -65,17 +81,19 @@ void		User::setHasNickname(bool hasNickname)
 	_hasNickname = hasNickname;
 }
 
-void		User::setChannel(Channel channel)
+void		User::setChannel(Channel &channel)
 {
 	_channel = channel;
+	channel.addUser(*this);
 }
 
-void		User::sendMessage(std::string message) const
+void User::sendMessage(std::string message) const
 {
-	for (std::map<std::string, User>::iterator it = _channel.getUsers().begin(); it != this->_channel.getUsers().end(); it++)
-	{
-		if (it->first == this->getName())
-			continue;
-		send(it->second.getFd(), message.c_str(), message.length(), 0);
-	}
+    std::map<std::string, User>::const_iterator it;
+    for (it = _channel.getUsers().begin(); it != _channel.getUsers().end(); it++)
+    {
+        if (it->first == _name)
+            continue;
+        send(it->second.getFd(), message.c_str(), message.length(), 0);
+    }
 }

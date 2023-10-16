@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Init.cpp                                           :+:      :+:    :+:   */
+/*   init.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cparras <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/04 16:17:50 by cparras           #+#    #+#             */
-/*   Updated: 2023/10/05 18:04:07 by cparras          ###   ########.fr       */
+/*   Updated: 2023/10/16 18:44:26 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ void	initNickname(User &user, int new_socket)
 	bzero(buffer, BUFFSIZE);
 }
 
-void	initName(User &user, int new_socket)
+void	initName(User &user, int &new_socket)
 {
 	int		valread;
 	char	buffer[BUFFSIZE + 1];
@@ -49,7 +49,14 @@ void	initName(User &user, int new_socket)
 	{
 		bzero(buffer, BUFFSIZE);
 		send(new_socket, "Enter a name: ", 15, 0);
-		valread = read(new_socket, buffer, BUFFSIZE);
+		std::cout << "socket : " << new_socket << std::endl;
+		valread = read(new_socket, buffer, sizeof(buffer));
+		if (valread == -1)
+		{
+			std::cout << "read failed" << std::endl;
+			break;
+		}
+		std::cout << "name = " << buffer << std::endl;
 		if (checkEmptyName(buffer) == true)
 			break ;
 		buffer[valread - 1] = '\0';
@@ -85,9 +92,9 @@ void	connection(int fd, std::string password)
 	}
 }
 
-User	init(int new_socket, const char *password)
+User	init(int new_socket, const char *password, Channel &general)
 {
-	User	user(new_socket);
+	User	user(new_socket, general);
 	user.setName("");
 
 	connection(user.getFd(), password);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: babreton <babreton@student.42perpignan.fr> +#+  +:+       +#+        */
+/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/06 12:57:48 by babreton          #+#    #+#             */
-/*   Updated: 2023/10/06 14:30:55 by babreton         ###   ########.fr       */
+/*   Updated: 2023/10/14 19:00:00 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,13 +23,12 @@ class Server {
 		~Server();
 
 		SOCKET				_newEntry;
-	private: 
-		Server(Server const &src);
-		Server &	operator=(Server const &rSym);
-		
+		int 		getServer() const;
+	private:
+
 		void	_initServer();
 
-		SOCKET				_server;
+		int				_server;
 		struct sockaddr_in	_adress;
 		const int			_port;
 };

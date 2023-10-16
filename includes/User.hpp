@@ -6,7 +6,7 @@
 /*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 15:15:56 by rrodor            #+#    #+#             */
-/*   Updated: 2023/10/11 17:35:40 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/10/16 18:47:27 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,10 +22,13 @@ class User
 		std::string 		_name;
 		std::string 		_nickname;
 		bool				_hasNickname;
-		Channel				_channel;
+		Channel				&_channel;
 	public:
-		User(int fd);
+		//User();
+		//User(int fd);
+		User(int & fd, Channel &channel);
 		~User();
+		User & operator=(User const & rhs);
 		std::string getName() const;
 		std::string getNickname() const;
 		bool		getHasNickname() const;
@@ -35,7 +38,7 @@ class User
 		void		setNickname(std::string nickname);
 		void		setFd(int fd);
 		void		setHasNickname(bool hasNickname);
-		void		setChannel(Channel channel);
+		void		setChannel(Channel &channel);
 		void		sendMessage(std::string message) const;
 };
 
