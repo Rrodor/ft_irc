@@ -41,11 +41,9 @@
 #define TRUE		1
 #define FALSE		0
 
-//init.cpp
+//utils.cpp
 bool	checkEmptyName(char *src);
-void	initNickname(User &user, int new_socket);
-void	initName(User &user, int &new_socket);
-void	connection(int fd, std::string password);
-
+void	connectToClient(int fd, std::string password);
+void	getorder(char* buffer, User &user, std::map<std::string, Channel> &channels);
 
 #endif

@@ -15,22 +15,30 @@
 
 #include <netinet/in.h>
 
-typedef	int	SOCKET;
-
 class Server {
 	public:
 		Server(const char * port);
 		~Server();
 
-		SOCKET				_newEntry;
-		int 		getServer() const;
-	private:
+		int 										getServer() const;
+		std::map<std::string, Channel> &			getChannels();
+		User &										getUserByFd(int fd);
+		std::map<int, std::pair<User, Channel> >	getUsersList() const;
 
+		void		newUser(int & fd, const char * password, Channel & channel, int fdsId);
+		void		printConnectedUsers() const;
+		void		destroyFd(int fd);
+
+		int				current_size;
+		struct pollfd	fds[200];
+	private:
 		void	_initServer();
 
-		int				_server;
-		struct sockaddr_in	_adress;
-		const int			_port;
+		int												_server;
+		struct sockaddr_in								_adress;
+		const int										_port;
+		std::map<std::string, Channel>					_channels;
+		std::map<int, std::pair<User, Channel> >		_connectedUsers; 
 };
 
 #endif

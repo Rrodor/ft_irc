@@ -12,24 +12,20 @@
 
 #include "../includes/ft_irc.hpp"
 
-/*User::User() : _fd(0), _hasNickname(false)
-{
-	Channel channel("default", "default");
-	_channel = channel;
-}*/
-
 User & User::operator=(const User & ref)
 {
-	_fd = ref.getFd();
-	_name = ref.getName();
-	_nickname = ref.getNickname();
-	_hasNickname = ref.getHasNickname();
-	_channel = ref.getChannel();
+	this->_fd = ref.getFd();
+	this->_name = ref.getName();
+	this->_nickname = ref.getNickname();
+	this->_hasNickname = ref.getHasNickname();
+	this->_channel = ref.getChannel();
 	return *this;
 }
 
-User::User(int & fd, Channel &channel) : _fd(fd), _hasNickname(false), _channel(channel)
+User::User(int & fd, Channel & channel, Server & server, int & fdsId) : _fd(fd), _fdsId(fdsId), _hasNickname(false), _channel(channel), _server(server)
 {
+	this->initName();
+	this->initNickname();
 }
 
 User::~User()
@@ -38,62 +34,117 @@ User::~User()
 
 std::string User::getName() const
 {
-	return _name;
+	return this->_name;
 }
 
 std::string User::getNickname() const
 {
-	return _nickname;
+	return this->_nickname;
 }
 
 bool		User::getHasNickname() const
 {
-	return _hasNickname;
+	return this->_hasNickname;
 }
 
 int			User::getFd() const
 {
-	return _fd;
+	return this->_fd;
 }
 
 Channel		User::getChannel() const
 {
-	return _channel;
+	return this->_channel;
+}
+
+int			User::getFdsId() const
+{
+	return this->_fdsId;
 }
 
 void		User::setName(std::string name)
 {
-	_name = name;
+	this->_name = name;
 }
 
 void		User::setNickname(std::string nickname)
 {
-	_nickname = nickname;
+	this->_nickname = nickname;
 }
 
 void		User::setFd(int fd)
 {
-	_fd = fd;
+	this->_fd = fd;
 }
 
 void		User::setHasNickname(bool hasNickname)
 {
-	_hasNickname = hasNickname;
+	this->_hasNickname = hasNickname;
 }
 
 void		User::setChannel(Channel &channel)
 {
-	_channel = channel;
+	this->_channel = channel;
 	channel.addUser(*this);
 }
 
-void User::sendMessage(std::string message) const
+void		User::initName()
 {
-    std::map<std::string, User>::const_iterator it;
-    for (it = _channel.getUsers().begin(); it != _channel.getUsers().end(); it++)
-    {
-        if (it->first == _name)
-            continue;
-        send(it->second.getFd(), message.c_str(), message.length(), 0);
-    }
+	int		valread;
+	char	buffer[BUFFSIZE + 1];
+
+	while (1)
+	{
+		bzero(buffer, BUFFSIZE);
+		send(this->_fd, "Enter a name: ", 15, 0);
+		valread = read(this->_fd, buffer, sizeof(buffer));
+		if (valread == -1)
+		{
+			std::cout << "read failed" << std::endl;
+			break;
+		}
+		if (checkEmptyName(buffer) == true)
+			break ;
+		buffer[valread - 1] = '\0';
+		bzero(buffer, BUFFSIZE);
+	}
+	buffer[valread - 1] = '\0';
+	this->_name = buffer;
+	bzero(buffer, BUFFSIZE);
+}
+
+void		User::initNickname()
+{
+	char	buffer[BUFFSIZE + 1];
+	int		valread;
+
+	send(this->_fd, "Enter a nickname: ", 19, 0);
+	valread = read(this->_fd, buffer, BUFFSIZE);
+	this->_hasNickname = true;
+	buffer[valread - 1] = '\0';
+	this->_nickname = buffer;
+	bzero(buffer, BUFFSIZE);
+}
+
+void 		User::sendMessage(std::string message, int fd)
+{
+	std::map<int, std::pair<User, Channel> >::iterator	it;
+	int													i;
+
+	for (i = 0, it = this->_server.getUsersList().begin(); i < this->_server.getUsersList().size(); i++)
+	{
+		if (it->first != fd) {
+			send(it->first, message.c_str(), message.length(), 0);
+			send(it->first, "> ", 2, 0);
+		}
+		if (i + 1 < this->_server.getUsersList().size())
+			it++;
+	}
+}
+
+void	User::deleteUser() {
+	this->_server.destroyFd(this->_fd);
+	this->_server.fds[this->_fdsId].fd = -1;
+	close(this->_fd);
+	this->_fd = -1;
 }

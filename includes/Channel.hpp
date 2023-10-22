@@ -18,20 +18,22 @@ class User;
 class Channel
 {
 	private:
-		std::string		_name;
-		std::string		_topic;
-		std::map<std::string, User>	_users;
+		std::string			_name;
+		std::string			_topic;
+		std::map<int, User>	_users;
 	public:
 		Channel();
 		Channel(std::string name, std::string topic);
 		~Channel();
 		std::string					getName() const;
 		std::string					getTopic() const;
-		std::map<std::string, User>	getUsers() const;
+		std::map<int, User>			getUsers() const;
 		void			setName(std::string name);
 		void			setTopic(std::string topic);
 		void			addUser(User user);
 		void			removeUser(User user);
 };
+
+std::ostream &	operator<<(std::ostream & o, Channel const &rSym);
 
 #endif

@@ -34,7 +34,7 @@ std::string		Channel::getTopic() const
 	return _topic;
 }
 
-std::map<std::string, User>		Channel::getUsers() const
+std::map<int, User>		Channel::getUsers() const
 {
 	return _users;
 }
@@ -51,10 +51,16 @@ void			Channel::setTopic(std::string topic)
 
 void			Channel::addUser(User user)
 {
-	_users.insert(std::pair<std::string, User>(user.getName(), user));
+	_users.insert(std::pair<int, User>(user.getFd(), user));
 }
 
 void			Channel::removeUser(User user)
 {
-	_users.erase(user.getName());
+	_users.erase(user.getFd());
+}
+
+std::ostream &	operator<<(std::ostream & o, Channel const &rSym)
+{
+	o << rSym.getName();
+	return o;
 }

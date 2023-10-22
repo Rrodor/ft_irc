@@ -12,14 +12,36 @@
 
 #include "../includes/ft_irc.hpp"
 
-Server::Server(const char * port) : _port(std::atoi(port))
+Server::Server(const char * port) : current_size(0), _port(std::atoi(port))
 {
 	this->_initServer();
 }
 
-int		Server::getServer() const
+int	Server::getServer() const
 {
 	return (this->_server);
+}
+
+std::map<int, std::pair<User, Channel> >	Server::getUsersList() const
+{
+	return this->_connectedUsers;
+}
+
+std::map<std::string, Channel> &			Server::getChannels()
+{
+	return this->_channels;
+}
+
+User &	Server::getUserByFd(int fd)
+{
+	std::map<int, std::pair<User, Channel> >::iterator	it;
+
+	for (it = this->_connectedUsers.begin(); it != this->_connectedUsers.end(); it++)
+		if (it->first == fd)
+			break;
+	if (it == this->_connectedUsers.end())
+		exit(1);
+	return it->second.first;
 }
 
 void	Server::_initServer() {
@@ -55,6 +77,36 @@ void	Server::_initServer() {
 		perror("listen");
 		exit(EXIT_FAILURE);
 	}
+}
+
+void	Server::newUser(int & fd, const char * password, Channel & channel, int fdsId)
+{
+	if (fd == -1)
+		exit(0);
+		
+	connectToClient(fd, password);
+
+	User						user(fd, channel, *this, fdsId);
+
+	this->_connectedUsers.insert(std::make_pair(fd, std::make_pair(user, channel)));
+	send(fd, "> ", 2, 0);
+}
+
+void	Server::printConnectedUsers() const
+{
+	std::map<int, std::pair<User, Channel> >::const_iterator	it;
+
+	for (it = this->_connectedUsers.begin(); it != this->_connectedUsers.end(); it++)
+	{
+		std::cout << "User : " << it->second.first.getName() << " connected with socket ";
+		std::cout << it->first << ". Channel : " << it->second.second.getName() << std::endl;
+	}
+}
+
+void	Server::destroyFd(int fd)
+{
+	std::cout << "erasing user id " << fd << std::endl;
+	this->_connectedUsers.erase(fd);
 }
 
 Server::~Server()
