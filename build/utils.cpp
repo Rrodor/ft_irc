@@ -6,7 +6,7 @@
 /*   By: cparras <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/04 16:17:50 by cparras           #+#    #+#             */
-/*   Updated: 2023/10/23 14:17:28 by cparras          ###   ########.fr       */
+/*   Updated: 2023/10/23 14:36:16 by cparras          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,6 +86,15 @@ void	displayHelp(User &user)
 	send(user.getFd(), "List of commands:\n", 19, 0);
 	send(user.getFd(), "/nick: change your nickname\n", 29, 0);
 	send(user.getFd(), "/quit: quit the server\n", 24, 0);
+	send(user.getFd(), "/channel -[flag]: depends on flag, for more details type /channel --help\n", 74, 0);
+}
+
+void	displayChannelFlags(User &user)
+{
+	send(user.getFd(), "List of flags:\n", 15, 0);
+	send(user.getFd(), "\t-c: display current channel\n", 30, 0);	
+	send(user.getFd(), "\t-l: display list of channels\n", 30, 0);
+	send(user.getFd(), "\t-s: change current channel\n", 29, 0);
 }
 
 void	getorder(char* buffer, User &user, std::map<std::string, Channel> &channels)
@@ -143,6 +152,8 @@ void	getorder(char* buffer, User &user, std::map<std::string, Channel> &channels
 	}
 	else if (strcmp(buffer, "/help") == 0)
 		displayHelp(user);
+	else if (strcmp(buffer, "/channel --help") == 0)
+		displayChannelFlags(user);
 	else
 		send(user.getFd(), "Unknown command\n/help for list of commands\n", 44, 0);
 	send(user.getFd(), "> ", 2, 0);
