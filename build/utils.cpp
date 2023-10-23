@@ -6,7 +6,7 @@
 /*   By: cparras <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/04 16:17:50 by cparras           #+#    #+#             */
-/*   Updated: 2023/10/23 14:36:16 by cparras          ###   ########.fr       */
+/*   Updated: 2023/10/23 17:03:56 by cparras          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,6 +97,35 @@ void	displayChannelFlags(User &user)
 	send(user.getFd(), "\t-s: change current channel\n", 29, 0);
 }
 
+std::string newChannelName(std::string buffer)
+{
+    char *str = new char[buffer.length() + 1];
+    std::strcpy(str, buffer.c_str());
+    char *tmp = strtok(str, " \t");
+
+    while (tmp != NULL)
+    {
+        str = tmp;
+        tmp = strtok(NULL, " \t");
+    }
+    std::string result = str;
+	std::cout << result << std::endl;
+
+    return result;
+}
+
+bool	flagSChecker(std::string buffer)
+{
+	int	i = buffer.size();
+	int j = 0;
+	std::string	channelName;
+
+	if (buffer[i - 1] == 's' && buffer[i - 2] == '-')
+		return true;
+	else
+		return false;
+}
+
 void	getorder(char* buffer, User &user, std::map<std::string, Channel> &channels)
 {
 	int	valread;
@@ -128,22 +157,35 @@ void	getorder(char* buffer, User &user, std::map<std::string, Channel> &channels
 			str += "\t-" + it->first + "\n";
 		send(user.getFd(), str.c_str(), str.length(), 0);
 	}
-	else if (strcmp(buffer, "/channel -s") == 0)
+	else if (strncmp(buffer, "/channel -s", 11) == 0)
 	{
-		bzero(buffer, BUFFSIZE);
-		send(user.getFd(), "Enter a channel name: ", 22, 0);
-		valread = read(user.getFd(), buffer, BUFFSIZE);
-		buffer[valread - 1] = '\0';
-		str = buffer;
-		user.setChannel(channels[str]);
-		if (channels[str].getName() == "default")
+		if (!flagSChecker(buffer))
 		{
-			Channel newChannel = Channel(str, str);
-			channels.insert(std::pair<std::string, Channel>(str, newChannel));
-			user.setChannel(newChannel);
+			std::string name = newChannelName(buffer);
+			user.setChannel(channels[name]);
+			if (channels[name].getName() == "default")
+			{
+				Channel newChannel = Channel(name, name);
+				channels.insert(std::pair<std::string, Channel>(name, newChannel));
+				user.setChannel(newChannel);
+			}
+			return;
 		}
-		else
+		else 
+		{
+			bzero(buffer, BUFFSIZE);
+			send(user.getFd(), "Enter a channel name: ", 22, 0);
+			valread = read(user.getFd(), buffer, BUFFSIZE);
+			buffer[valread - 1] = '\0';
+			std::string str = buffer;
 			user.setChannel(channels[str]);
+			if (channels[str].getName() == "default")
+			{
+				Channel newChannel = Channel(str, str);
+				channels.insert(std::pair<std::string, Channel>(str, newChannel));
+				user.setChannel(newChannel);
+			}
+		}
 	}
 	else if (strcmp(buffer, "/quit") == 0)
 	{
