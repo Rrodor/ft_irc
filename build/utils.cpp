@@ -1,16 +1,45 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   init.cpp                                           :+:      :+:    :+:   */
+/*   utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
+/*   By: cparras <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/04 16:17:50 by cparras           #+#    #+#             */
-/*   Updated: 2023/10/16 18:44:26 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/10/23 14:17:28 by cparras          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/ft_irc.hpp"
+
+std::string     trimName(std::string name, bool flag)
+{
+    int j = 0;
+
+    for (int i = 0; i < name.length(); i++)
+    {
+        if (name[i] == ' ' || name[i] == '\t')
+            j++;
+        else
+            break ;
+    }
+    name.erase(0, j);
+    for (int i = name.length() - 1; i >= 0; i--)
+    {
+        if (name[i] == ' ' || name[i] == '\t')
+            name[i] = '\0';
+        else
+            break ;
+    }
+    if (flag == 1)
+        return name;
+    for (int i = 0; i < name.length(); i++)
+    {
+        if (name[i] == ' ' || name[i] == '\t')
+            name[i] = '_';
+    }
+    return name;
+}
 
 bool	checkEmptyName(char *src)
 {

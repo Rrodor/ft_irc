@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_irc.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
+/*   By: cparras <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/05 18:00:47 by cparras           #+#    #+#             */
-/*   Updated: 2023/10/16 15:07:11 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/10/23 14:17:53 by cparras          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,8 +61,9 @@
 #define FALSE		0
 
 //utils.cpp
-bool	checkEmptyName(char *src);
-void	connectToClient(int fd, std::string password);
-void	getorder(char* buffer, User &user, std::map<std::string, Channel> &channels);
+bool			checkEmptyName(char *src);
+void			connectToClient(int fd, std::string password);
+void			getorder(char* buffer, User &user, std::map<std::string, Channel> &channels);
+std::string     trimName(std::string name, bool flag);
 
 #endif

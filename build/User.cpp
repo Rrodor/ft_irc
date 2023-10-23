@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   User.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
+/*   By: cparras <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 15:56:20 by rrodor            #+#    #+#             */
-/*   Updated: 2023/10/16 18:49:15 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/10/23 14:20:41 by cparras          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,8 +91,9 @@ void		User::setChannel(Channel &channel)
 
 void		User::initName()
 {
-	int		valread;
-	char	buffer[BUFFSIZE + 1];
+	int				valread;
+	char			buffer[BUFFSIZE + 1];
+	std::string		name;
 
 	while (1)
 	{
@@ -110,20 +111,23 @@ void		User::initName()
 		bzero(buffer, BUFFSIZE);
 	}
 	buffer[valread - 1] = '\0';
-	this->_name = buffer;
+	name = trimName(buffer, 0);
+	this->_name = name;
 	bzero(buffer, BUFFSIZE);
 }
 
 void		User::initNickname()
 {
-	char	buffer[BUFFSIZE + 1];
-	int		valread;
+	char		buffer[BUFFSIZE + 1];
+	int			valread;
+	std::string	name;
 
 	send(this->_fd, "Enter a nickname: ", 19, 0);
 	valread = read(this->_fd, buffer, BUFFSIZE);
 	this->_hasNickname = true;
 	buffer[valread - 1] = '\0';
-	this->_nickname = buffer;
+	name = trimName(buffer, 1);
+	this->_nickname = name;
 	bzero(buffer, BUFFSIZE);
 }
 
