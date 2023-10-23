@@ -37,7 +37,7 @@ int main(int argc, char const* argv[])
 
 	while (1)
 	{
-		std::cout << "Waiting incoming connection ( poll() )..." << std::endl;
+		std::cout << YELLOW << "[STATUS] : Waiting incoming connection ( poll() )..." << RESET << std::endl;
 		rc = poll(server.fds, fdsId, -1);
 		server.current_size = fdsId;
 		for (int i = 0; i < server.current_size; i++)
@@ -52,7 +52,7 @@ int main(int argc, char const* argv[])
 					newSd = accept(server.getServer(), NULL, NULL);
 					if (newSd != -1)
 					{
-						std::cout << "new user connected: " << newSd << std::endl;
+						std::cout << GREEN << "[STATUS] : New user connected with id " << newSd << "." << RESET << std::endl;
 						server.fds[fdsId].fd = newSd;
 						server.fds[fdsId].events = POLLIN;
 						server.newUser(server.fds[fdsId].fd, argv[2], general, fdsId);
@@ -82,8 +82,8 @@ int main(int argc, char const* argv[])
 				else
 				{
 					message = "[" + server.getUserByFd(server.fds[i].fd).getName() + "] " + buffer;
-					server.getUserByFd(server.fds[i].fd).sendMessage(message, server.fds[i].fd);
-					std::cout << "[" << server.getUserByFd(server.fds[i].fd).getName() << "] in " << server.getUserByFd(server.fds[i].fd).getChannel().getName() << ": " << buffer;
+					server.getUserByFd(server.fds[i].fd).sendMessage(message, server.fds[i].fd, server.getUserByFd(server.fds[i].fd).getChannel().getName());
+					std::cout << CYAN << "[MESSAGE][" << server.getUserByFd(server.fds[i].fd).getName() << "] in " << server.getUserByFd(server.fds[i].fd).getChannel().getName() << " : " << buffer << RESET;
 				}
 				if (close_conn)
 				{

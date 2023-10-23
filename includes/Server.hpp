@@ -27,7 +27,7 @@ class Server {
 
 		void		newUser(int & fd, const char * password, Channel & channel, int fdsId);
 		void		printConnectedUsers() const;
-		void		destroyFd(int fd);
+		void		destroyFd(int fd, std::string name);
 
 		int				current_size;
 		struct pollfd	fds[200];

@@ -103,9 +103,9 @@ void	Server::printConnectedUsers() const
 	}
 }
 
-void	Server::destroyFd(int fd)
+void	Server::destroyFd(int fd, std::string name)
 {
-	std::cout << "erasing user id " << fd << std::endl;
+	std::cout << RED << "[STATUS] : deleting user id " << fd << " named " << name << "." << RESET << std::endl;
 	this->_connectedUsers.erase(fd);
 }
 

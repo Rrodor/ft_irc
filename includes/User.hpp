@@ -36,7 +36,7 @@ class User
 		void			setFd(int fd);
 		void			setHasNickname(bool hasNickname);
 		void			setChannel(Channel &channel);
-		void			sendMessage(std::string message, int fd);
+		void			sendMessage(std::string message, int fd, std::string channelName);
 
 		void			initName();
 		void			initNickname();

@@ -63,7 +63,7 @@ void	getorder(char* buffer, User &user, std::map<std::string, Channel> &channels
 {
 	int	valread;
 	std::string str;
-	std::cout << "buffer: |" << buffer << "|" << std::endl;
+	std::cout << CYAN << "[COMMAND][" << user.getName() << "][" << user.getFd() << "] : enter command " << buffer << RESET << std::endl;
 	if (strcmp(buffer, "/nick") == 0)
 	{
 		send(user.getFd(), "Enter a nickname: ", 19, 0);

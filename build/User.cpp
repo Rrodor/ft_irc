@@ -26,6 +26,7 @@ User::User(int & fd, Channel & channel, Server & server, int & fdsId) : _fd(fd),
 {
 	this->initName();
 	this->initNickname();
+	std::cout << GREEN << "[STATUS] : New user named \"" << this->getName() << "\" connected with id " << this->getFd() << "." << RESET << std::endl;
 }
 
 User::~User()
@@ -126,14 +127,15 @@ void		User::initNickname()
 	bzero(buffer, BUFFSIZE);
 }
 
-void 		User::sendMessage(std::string message, int fd)
+void 		User::sendMessage(std::string message, int fd, std::string channelName)
 {
 	std::map<int, std::pair<User, Channel> >::iterator	it;
 	int													i;
 
 	for (i = 0, it = this->_server.getUsersList().begin(); i < this->_server.getUsersList().size(); i++)
 	{
-		if (it->first != fd) {
+		if (it->first != fd && it->second.second.getName() == channelName)
+		{
 			send(it->first, message.c_str(), message.length(), 0);
 			send(it->first, "> ", 2, 0);
 		}
@@ -143,7 +145,7 @@ void 		User::sendMessage(std::string message, int fd)
 }
 
 void	User::deleteUser() {
-	this->_server.destroyFd(this->_fd);
+	this->_server.destroyFd(this->_fd, this->getName());
 	this->_server.fds[this->_fdsId].fd = -1;
 	close(this->_fd);
 	this->_fd = -1;
