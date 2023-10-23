@@ -22,7 +22,7 @@ int	Server::getServer() const
 	return (this->_server);
 }
 
-std::map<int, std::pair<User, Channel> >	Server::getUsersList() const
+std::map<int, std::pair<User *, Channel> > &	Server::getUsersList()
 {
 	return this->_connectedUsers;
 }
@@ -34,14 +34,14 @@ std::map<std::string, Channel> &			Server::getChannels()
 
 User &	Server::getUserByFd(int fd)
 {
-	std::map<int, std::pair<User, Channel> >::iterator	it;
+	std::map<int, std::pair<User *, Channel> >::iterator	it;
 
 	for (it = this->_connectedUsers.begin(); it != this->_connectedUsers.end(); it++)
 		if (it->first == fd)
 			break;
 	if (it == this->_connectedUsers.end())
 		exit(1);
-	return it->second.first;
+	return *it->second.first;
 }
 
 void	Server::_initServer() {
@@ -86,7 +86,7 @@ void	Server::newUser(int & fd, const char * password, Channel & channel, int fds
 		
 	connectToClient(fd, password);
 
-	User						user(fd, channel, *this, fdsId);
+	User * user = new User(fd, channel, *this, fdsId);
 
 	this->_connectedUsers.insert(std::make_pair(fd, std::make_pair(user, channel)));
 	send(fd, "> ", 2, 0);
@@ -94,18 +94,22 @@ void	Server::newUser(int & fd, const char * password, Channel & channel, int fds
 
 void	Server::printConnectedUsers() const
 {
-	std::map<int, std::pair<User, Channel> >::const_iterator	it;
+	std::map<int, std::pair<User *, Channel> >::const_iterator	it;
 
 	for (it = this->_connectedUsers.begin(); it != this->_connectedUsers.end(); it++)
 	{
-		std::cout << "User : " << it->second.first.getName() << " connected with socket ";
-		std::cout << it->first << ". Channel : " << it->second.second.getName() << std::endl;
+		std::cout << "User : " << it->second.first->getName() << " connected with socket ";
+		std::cout << it->first << " and fdsId " << it->second.first->getFdsId() << ". Channel : ";
+		std::cout << it->second.second.getName() << std::endl;
 	}
 }
 
-void	Server::destroyFd(int fd, std::string name)
+void	Server::deleteUser(int fd, std::string name, int fdsId)
 {
 	std::cout << RED << "[STATUS] : deleting user id " << fd << " named " << name << "." << RESET << std::endl;
+	close(this->fds[fdsId].fd);
+	this->fds[fdsId].fd = -1;
+	delete this->_connectedUsers.find(fd)->second.first;
 	this->_connectedUsers.erase(fd);
 }
 

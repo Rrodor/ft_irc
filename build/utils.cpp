@@ -6,7 +6,7 @@
 /*   By: cparras <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/04 16:17:50 by cparras           #+#    #+#             */
-/*   Updated: 2023/10/23 17:03:56 by cparras          ###   ########.fr       */
+/*   Updated: 2023/10/23 14:17:28 by cparras          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,8 +109,6 @@ std::string newChannelName(std::string buffer)
         tmp = strtok(NULL, " \t");
     }
     std::string result = str;
-	std::cout << result << std::endl;
-
     return result;
 }
 
@@ -126,7 +124,7 @@ bool	flagSChecker(std::string buffer)
 		return false;
 }
 
-void	getorder(char* buffer, User &user, std::map<std::string, Channel> &channels)
+void	getorder(char* buffer, User &user, std::map<std::string, Channel> &channels, Server & server)
 {
 	int	valread;
 	std::string str;
@@ -189,9 +187,11 @@ void	getorder(char* buffer, User &user, std::map<std::string, Channel> &channels
 	}
 	else if (strcmp(buffer, "/quit") == 0)
 	{
-		user.deleteUser();
+		server.deleteUser(user.getFd(), user.getName(), user.getFdsId());
 		return;
 	}
+	else if (strcmp(buffer, "/rootlist") == 0)
+		user.getServer().printConnectedUsers();
 	else if (strcmp(buffer, "/help") == 0)
 		displayHelp(user);
 	else if (strcmp(buffer, "/channel --help") == 0)

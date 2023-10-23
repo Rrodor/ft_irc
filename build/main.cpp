@@ -30,6 +30,7 @@ int main(int argc, char const* argv[])
 
 	Server	server(argv[1]);
 	Channel general("general", "general");
+	server.getChannels().insert(std::pair<std::string, Channel>("general", general));
 	
 	memset(server.fds, 0 , sizeof(server.fds));
 	server.fds[0].fd = server.getServer();
@@ -77,13 +78,15 @@ int main(int argc, char const* argv[])
 				if (buffer[0] == '/')
 				{
 					buffer[rc - 1] = '\0';
-					getorder(buffer, server.getUserByFd(server.fds[i].fd), server.getChannels());
+					getorder(buffer, server.getUserByFd(server.fds[i].fd), server.getChannels(), server);
 				}
 				else
 				{
 					message = "[" + server.getUserByFd(server.fds[i].fd).getName() + "] " + buffer;
-					server.getUserByFd(server.fds[i].fd).sendMessage(message, server.fds[i].fd, server.getUserByFd(server.fds[i].fd).getChannel().getName());
-					std::cout << CYAN << "[MESSAGE][" << server.getUserByFd(server.fds[i].fd).getName() << "] in " << server.getUserByFd(server.fds[i].fd).getChannel().getName() << " : " << buffer << RESET;
+
+					server.getUserByFd(server.fds[i].fd).sendMessage(message, server.fds[i].fd, server.getUsersList().find(server.fds[i].fd));
+
+					std::cout << CYAN << "[MESSAGE][" << server.getUserByFd(server.fds[i].fd).getName() << "][" << server.getUserByFd(server.fds[i].fd).getFd() << "] in " << server.getUserByFd(server.fds[i].fd).getChannel().getName() << " : " << buffer << RESET;
 				}
 				if (close_conn)
 				{

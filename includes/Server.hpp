@@ -20,14 +20,14 @@ class Server {
 		Server(const char * port);
 		~Server();
 
-		int 										getServer() const;
-		std::map<std::string, Channel> &			getChannels();
-		User &										getUserByFd(int fd);
-		std::map<int, std::pair<User, Channel> >	getUsersList() const;
+		int 											getServer() const;
+		std::map<std::string, Channel> &				getChannels();
+		User &											getUserByFd(int fd);
+		std::map<int, std::pair<User *, Channel> > &	getUsersList();
 
 		void		newUser(int & fd, const char * password, Channel & channel, int fdsId);
 		void		printConnectedUsers() const;
-		void		destroyFd(int fd, std::string name);
+		void		deleteUser(int fd, std::string name, int fdsId);
 
 		int				current_size;
 		struct pollfd	fds[200];
@@ -38,7 +38,7 @@ class Server {
 		struct sockaddr_in								_adress;
 		const int										_port;
 		std::map<std::string, Channel>					_channels;
-		std::map<int, std::pair<User, Channel> >		_connectedUsers; 
+		std::map<int, std::pair<User *, Channel> >		_connectedUsers; 
 };
 
 #endif

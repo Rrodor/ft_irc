@@ -63,7 +63,7 @@
 //utils.cpp
 bool			checkEmptyName(char *src);
 void			connectToClient(int fd, std::string password);
-void			getorder(char* buffer, User &user, std::map<std::string, Channel> &channels);
+void			getorder(char* buffer, User &user, std::map<std::string, Channel> &channels, Server & server);
 std::string     trimName(std::string name, bool flag);
 
 #endif

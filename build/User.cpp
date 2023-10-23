@@ -63,6 +63,11 @@ int			User::getFdsId() const
 	return this->_fdsId;
 }
 
+Server &	User::getServer() const
+{
+	return this->_server;
+}
+
 void		User::setName(std::string name)
 {
 	this->_name = name;
@@ -86,7 +91,7 @@ void		User::setHasNickname(bool hasNickname)
 void		User::setChannel(Channel &channel)
 {
 	this->_channel = channel;
-	channel.addUser(*this);
+	this->_server.getUsersList()[this->getFd()] = std::make_pair(this, channel);
 }
 
 void		User::initName()
@@ -131,26 +136,20 @@ void		User::initNickname()
 	bzero(buffer, BUFFSIZE);
 }
 
-void 		User::sendMessage(std::string message, int fd, std::string channelName)
+void 		User::sendMessage(std::string message, int fd, std::map<int, std::pair<User *, Channel> >::iterator channel)
 {
-	std::map<int, std::pair<User, Channel> >::iterator	it;
-	int													i;
+	std::string													channelName = channel->second.second.getName();
+	std::map<int, std::pair<User *, Channel> >::const_iterator	it = this->getServer().getUsersList().begin();
+	std::map<int, std::pair<User *, Channel> >::const_iterator	ite = this->getServer().getUsersList().end();
 
-	for (i = 0, it = this->_server.getUsersList().begin(); i < this->_server.getUsersList().size(); i++)
+	std::cout << "Channel dest : " << channelName << std::endl;
+	while (it != ite)
 	{
 		if (it->first != fd && it->second.second.getName() == channelName)
 		{
 			send(it->first, message.c_str(), message.length(), 0);
 			send(it->first, "> ", 2, 0);
 		}
-		if (i + 1 < this->_server.getUsersList().size())
-			it++;
+		it++;
 	}
-}
-
-void	User::deleteUser() {
-	this->_server.destroyFd(this->_fd, this->getName());
-	this->_server.fds[this->_fdsId].fd = -1;
-	close(this->_fd);
-	this->_fd = -1;
 }

@@ -30,17 +30,17 @@ class User
 		int				getFd() const;
 		Channel			getChannel() const;
 		int				getFdsId() const;
+		Server &		getServer() const;
 
 		void			setName(std::string name);
 		void			setNickname(std::string nickname);
 		void			setFd(int fd);
 		void			setHasNickname(bool hasNickname);
 		void			setChannel(Channel &channel);
-		void			sendMessage(std::string message, int fd, std::string channelName);
+		void			sendMessage(std::string message, int fd, std::map<int, std::pair<User *, Channel> >::iterator channel);
 
 		void			initName();
 		void			initNickname();
-		void			deleteUser();
 		
 	private:
 		int					_fd;
