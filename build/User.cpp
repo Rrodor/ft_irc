@@ -12,17 +12,17 @@
 
 #include "../includes/ft_irc.hpp"
 
-User & User::operator=(const User & ref)
+User & User::operator=(User & rhs)
 {
-	this->_fd = ref.getFd();
-	this->_name = ref.getName();
-	this->_nickname = ref.getNickname();
-	this->_hasNickname = ref.getHasNickname();
-	this->_channel = ref.getChannel();
+	this->_fd = rhs.getFd();
+	this->_name = rhs.getName();
+	this->_nickname = rhs.getNickname();
+	this->_hasNickname = rhs.getHasNickname();
+	this->_channel = rhs.getChannel();
 	return *this;
 }
 
-User::User(int & fd, Channel & channel, Server & server, int & fdsId) : _fd(fd), _fdsId(fdsId), _hasNickname(false), _channel(channel), _server(server)
+User::User(int & fd, Channel * channel, Server & server, int & fdsId) : _fd(fd), _fdsId(fdsId), _hasNickname(false), _channel(channel), _server(server)
 {
 	this->initName();
 	this->initNickname();
@@ -48,17 +48,17 @@ bool		User::getHasNickname() const
 	return this->_hasNickname;
 }
 
-int			User::getFd() const
+int &		User::getFd()
 {
 	return this->_fd;
 }
 
-Channel		User::getChannel() const
+Channel *	User::getChannel() const
 {
-	return this->_channel;
+	return	this->_channel;
 }
 
-int			User::getFdsId() const
+int &		User::getFdsId()
 {
 	return this->_fdsId;
 }
@@ -88,10 +88,9 @@ void		User::setHasNickname(bool hasNickname)
 	this->_hasNickname = hasNickname;
 }
 
-void		User::setChannel(Channel &channel)
+void		User::setChannel(Channel * channel)
 {
 	this->_channel = channel;
-	this->_server.getUsersList()[this->getFd()] = std::make_pair(this, channel);
 }
 
 void		User::initName()
@@ -136,16 +135,16 @@ void		User::initNickname()
 	bzero(buffer, BUFFSIZE);
 }
 
-void 		User::sendMessage(std::string message, int fd, std::map<int, std::pair<User *, Channel> >::iterator channel)
+void 		User::sendMessage(std::string message, int fd, Channel * channel)
 {
-	std::string													channelName = channel->second.second.getName();
-	std::map<int, std::pair<User *, Channel> >::const_iterator	it = this->getServer().getUsersList().begin();
-	std::map<int, std::pair<User *, Channel> >::const_iterator	ite = this->getServer().getUsersList().end();
+	std::string													channelName = channel->getName();
+	std::map<int, std::pair<User *, Channel *> >::const_iterator	it = this->getServer().getUsersList().begin();
+	std::map<int, std::pair<User *, Channel *> >::const_iterator	ite = this->getServer().getUsersList().end();
 
 	std::cout << "Channel dest : " << channelName << std::endl;
 	while (it != ite)
 	{
-		if (it->first != fd && it->second.second.getName() == channelName)
+		if (it->first != fd && it->second.second->getName() == channelName)
 		{
 			send(it->first, message.c_str(), message.length(), 0);
 			send(it->first, "> ", 2, 0);

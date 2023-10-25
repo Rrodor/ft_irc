@@ -32,6 +32,9 @@
 #include <algorithm>
 #include <map>
 #include <vector>
+#include <stdexcept>
+#include <cctype>
+#include <iomanip>
 
 #define RESET   "\033[0m"
 #define BLACK   "\033[30m"      /* Black */
@@ -63,7 +66,7 @@
 //utils.cpp
 bool			checkEmptyName(char *src);
 void			connectToClient(int fd, std::string password);
-void			getorder(char* buffer, User &user, std::map<std::string, Channel> &channels, Server & server);
+void			getorder(char* buffer, User * user, Server * server);
 std::string     trimName(std::string name, bool flag);
 
 #endif

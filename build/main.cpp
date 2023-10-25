@@ -21,53 +21,56 @@ int main(int argc, char const* argv[])
 	}
 
 	std::string		message;
-	int				i = 0;
-	int				rc = 1;
-	int				fdsId = 1;
-	int				newSd = 0;
-	int				close_conn = 0;
 	char			buffer[BUFFSIZE + 1];
+	int				rc = 1, \
+					i = 0, \
+					fdsId = 1, \
+					newSd = 0, \
+					close_conn = 0;
 
-	Server	server(argv[1]);
-	Channel general("general", "general");
-	server.getChannels().insert(std::pair<std::string, Channel>("general", general));
-	
-	memset(server.fds, 0 , sizeof(server.fds));
-	server.fds[0].fd = server.getServer();
-	server.fds[0].events = POLLIN;
+	Server			*server;
+	try
+	{
+		server = new Server(argv[1]);
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << "[ERROR] : Error during server creation : " << std::endl;
+		std::cerr <<  e.what() << std::endl;
+		delete server;
+	}
 
 	while (1)
 	{
 		std::cout << YELLOW << "[STATUS] : Waiting incoming connection ( poll() )..." << RESET << std::endl;
-		rc = poll(server.fds, fdsId, -1);
-		server.current_size = fdsId;
-		for (int i = 0; i < server.current_size; i++)
+		rc = poll(server->fds, fdsId, -1);
+		server->current_size = fdsId;
+		for (int i = 0; i < server->current_size; i++)
 		{
-			if(server.fds[i].revents == 0)
+			if(server->fds[i].revents == 0)
 				continue;
 			newSd = 0;
-			if (server.fds[i].fd == server.getServer())
+			if (server->fds[i].fd == server->getServerSocket())
 			{
 				while (newSd != -1)
 				{
-					newSd = accept(server.getServer(), NULL, NULL);
+					newSd = accept(server->getServerSocket(), NULL, NULL);
 					if (newSd != -1)
 					{
 						std::cout << GREEN << "[STATUS] : New user connected with id " << newSd << "." << RESET << std::endl;
-						server.fds[fdsId].fd = newSd;
-						server.fds[fdsId].events = POLLIN;
-						server.newUser(server.fds[fdsId].fd, argv[2], general, fdsId);
+						if (server->newUser(newSd, argv[2], fdsId))
+							delete server;
 						fdsId++;
 					}
 				}
 			}
-			else if (server.fds[i].fd == -1)
+			else if (server->fds[i].fd == -1)
 				break;
 			else
 			{
 				close_conn = FALSE;
-				send(server.fds[i].fd, "> ", 2, 0);
-				rc = recv(server.fds[i].fd, buffer, sizeof(buffer), 0);
+				send(server->fds[i].fd, "> ", 2, 0);
+				rc = recv(server->fds[i].fd, buffer, sizeof(buffer), 0);
 				if (rc == 0)
 				{
 					printf("  Connection closed\n");
@@ -78,20 +81,22 @@ int main(int argc, char const* argv[])
 				if (buffer[0] == '/')
 				{
 					buffer[rc - 1] = '\0';
-					getorder(buffer, server.getUserByFd(server.fds[i].fd), server.getChannels(), server);
+					getorder(buffer, server->getUserByFd(server->fds[i].fd), server);
 				}
 				else
 				{
-					message = "[" + server.getUserByFd(server.fds[i].fd).getName() + "] " + buffer;
-
-					server.getUserByFd(server.fds[i].fd).sendMessage(message, server.fds[i].fd, server.getUsersList().find(server.fds[i].fd));
-
-					std::cout << CYAN << "[MESSAGE][" << server.getUserByFd(server.fds[i].fd).getName() << "][" << server.getUserByFd(server.fds[i].fd).getFd() << "] in " << server.getUserByFd(server.fds[i].fd).getChannel().getName() << " : " << buffer << RESET;
+					message = "[" + server->getUserByFd(server->fds[i].fd)->getName() + "] " + buffer;
+					server->getUserByFd(server->fds[i].fd)->sendMessage(message, server->fds[i].fd, server->getUserByFd(server->fds[i].fd)->getChannel());
+					
+					std::cout << CYAN << "[MESSAGE][" << server->getUserByFd(server->fds[i].fd)->getName();
+					std::cout << "][" << server->getUserByFd(server->fds[i].fd)->getFd() << "] in ";
+					std::cout << server->getUserByFd(server->fds[i].fd)->getChannel()->getName();
+					std::cout << " : " << buffer << RESET;
 				}
 				if (close_conn)
 				{
-					close(server.fds[i].fd);
-					server.fds[i].fd = -1;
+					close(server->fds[i].fd);
+					server->fds[i].fd = -1;
 				}
 			}
 		}

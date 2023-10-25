@@ -81,20 +81,20 @@ void	connectToClient(int fd, std::string password)
 	}
 }
 
-void	displayHelp(User &user)
+void	displayHelp(User * user)
 {
-	send(user.getFd(), "List of commands:\n", 19, 0);
-	send(user.getFd(), "/nick: change your nickname\n", 29, 0);
-	send(user.getFd(), "/quit: quit the server\n", 24, 0);
-	send(user.getFd(), "/channel -[flag]: depends on flag, for more details type /channel --help\n", 74, 0);
+	send(user->getFd(), "List of commands:\n", 19, 0);
+	send(user->getFd(), "/nick: change your nickname\n", 29, 0);
+	send(user->getFd(), "/quit: quit the server\n", 24, 0);
+	send(user->getFd(), "/channel -[flag]: depends on flag, for more details type /channel --help\n", 74, 0);
 }
 
-void	displayChannelFlags(User &user)
+void	displayChannelFlags(User * user)
 {
-	send(user.getFd(), "List of flags:\n", 15, 0);
-	send(user.getFd(), "\t-c: display current channel\n", 30, 0);	
-	send(user.getFd(), "\t-l: display list of channels\n", 30, 0);
-	send(user.getFd(), "\t-s: change current channel\n", 29, 0);
+	send(user->getFd(), "List of flags:\n", 15, 0);
+	send(user->getFd(), "\t-c: display current channel\n", 30, 0);	
+	send(user->getFd(), "\t-l: display list of channels\n", 30, 0);
+	send(user->getFd(), "\t-s: change current channel\n", 29, 0);
 }
 
 std::string newChannelName(std::string buffer)
@@ -112,7 +112,7 @@ std::string newChannelName(std::string buffer)
     return result;
 }
 
-bool	flagSChecker(std::string buffer)
+bool	flagsChecker(std::string buffer)
 {
 	int	i = buffer.size();
 	int j = 0;
@@ -124,79 +124,67 @@ bool	flagSChecker(std::string buffer)
 		return false;
 }
 
-void	getorder(char* buffer, User &user, std::map<std::string, Channel> &channels, Server & server)
+void	getorder(char* buffer, User * user, Server * server)
 {
 	int	valread;
 	std::string str;
-	std::cout << CYAN << "[COMMAND][" << user.getName() << "][" << user.getFd() << "] : enter command " << buffer << RESET << std::endl;
+	std::cout << CYAN << "[COMMAND][" << user->getName() << "][" << user->getFd() << "] : enter command " << buffer << RESET << std::endl;
 	if (strcmp(buffer, "/nick") == 0)
 	{
-		send(user.getFd(), "Enter a nickname: ", 19, 0);
+		send(user->getFd(), "Enter a nickname: ", 19, 0);
 		bzero(buffer, BUFFSIZE);
-		valread = read(user.getFd(), buffer, BUFFSIZE);
+		valread = read(user->getFd(), buffer, BUFFSIZE);
 		if (valread == 1)
-			user.setHasNickname(false);
+			user->setHasNickname(false);
 		else
 		{
 			buffer[strlen(buffer) - 1] = '\0';
-			user.setNickname(buffer);
+			user->setNickname(buffer);
 			bzero(buffer, BUFFSIZE);
 		}
 	}
 	else if (strcmp(buffer, "/channel -c") == 0)
 	{
-		str = "current channel is: " + user.getChannel().getName() + "\n";
-		send(user.getFd(), str.c_str(), str.length(), 0);
+		str = "current channel is: " + user->getChannel()->getName() + "\n";
+		send(user->getFd(), str.c_str(), str.length(), 0);
 	}
 	else if (strcmp(buffer, "/channel -l") == 0)
 	{
 		str = "List of channels:\n";
-		for (std::map<std::string, Channel>::iterator it = channels.begin(); it != channels.end(); ++it)
+		for (std::map<std::string, Channel *>::iterator it = server->getChannelsList().begin(); it != server->getChannelsList().end(); ++it)
 			str += "\t-" + it->first + "\n";
-		send(user.getFd(), str.c_str(), str.length(), 0);
+		send(user->getFd(), str.c_str(), str.length(), 0);
 	}
 	else if (strncmp(buffer, "/channel -s", 11) == 0)
 	{
-		if (!flagSChecker(buffer))
+		if (flagsChecker(buffer) == false)
 		{
 			std::string name = newChannelName(buffer);
-			user.setChannel(channels[name]);
-			if (channels[name].getName() == "default")
-			{
-				Channel newChannel = Channel(name, name);
-				channels.insert(std::pair<std::string, Channel>(name, newChannel));
-				user.setChannel(newChannel);
-			}
+			server->changeUserChannel(name, name, user);
 			return;
 		}
 		else 
 		{
 			bzero(buffer, BUFFSIZE);
-			send(user.getFd(), "Enter a channel name: ", 22, 0);
-			valread = read(user.getFd(), buffer, BUFFSIZE);
+			send(user->getFd(), "Enter a channel name: ", 22, 0);
+			valread = read(user->getFd(), buffer, BUFFSIZE);
 			buffer[valread - 1] = '\0';
 			std::string str = buffer;
-			user.setChannel(channels[str]);
-			if (channels[str].getName() == "default")
-			{
-				Channel newChannel = Channel(str, str);
-				channels.insert(std::pair<std::string, Channel>(str, newChannel));
-				user.setChannel(newChannel);
-			}
+			server->changeUserChannel(str, str, user);
 		}
 	}
 	else if (strcmp(buffer, "/quit") == 0)
 	{
-		server.deleteUser(user.getFd(), user.getName(), user.getFdsId());
+		server->deleteUser(user->getFd(), user->getName(), user->getFdsId());
 		return;
 	}
 	else if (strcmp(buffer, "/rootlist") == 0)
-		user.getServer().printConnectedUsers();
+		user->getServer().printConnectedUsers();
 	else if (strcmp(buffer, "/help") == 0)
 		displayHelp(user);
 	else if (strcmp(buffer, "/channel --help") == 0)
 		displayChannelFlags(user);
 	else
-		send(user.getFd(), "Unknown command\n/help for list of commands\n", 44, 0);
-	send(user.getFd(), "> ", 2, 0);
+		send(user->getFd(), "Unknown command\n/help for list of commands\n", 44, 0);
+	send(user->getFd(), "> ", 2, 0);
 }

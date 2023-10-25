@@ -20,24 +20,24 @@ class User
 {
 	public:
 		User();
-		User(int & fd, Channel & channel, Server & server, int & fdsId);
+		User(int & fd, Channel * channel, Server & server, int & fdsId);
 		~User();
-		User & operator=(User const & rhs);
+		User & operator=(User & rhs);
 
 		std::string 	getName() const;
 		std::string 	getNickname() const;
 		bool			getHasNickname() const;
-		int				getFd() const;
-		Channel			getChannel() const;
-		int				getFdsId() const;
+		int &			getFd();
+		Channel *		getChannel() const;
+		int &			getFdsId();
 		Server &		getServer() const;
 
 		void			setName(std::string name);
 		void			setNickname(std::string nickname);
 		void			setFd(int fd);
 		void			setHasNickname(bool hasNickname);
-		void			setChannel(Channel &channel);
-		void			sendMessage(std::string message, int fd, std::map<int, std::pair<User *, Channel> >::iterator channel);
+		void			setChannel(Channel * channel);
+		void			sendMessage(std::string message, int fd, Channel * channel);
 
 		void			initName();
 		void			initNickname();
@@ -48,8 +48,8 @@ class User
 		std::string 		_name;
 		std::string 		_nickname;
 		bool				_hasNickname;
-		Channel				&_channel;
-		Server				&_server;
+		Channel	*			_channel;
+		Server	&			_server;
 };
 
 User	init(int new_socket, const char *password);
