@@ -14,7 +14,6 @@
 
 int main(int argc, char const* argv[])
 {
-	//signal(SIGINT, signal_handler);	
 	if (argc != 3)
 	{
 		std::cout << "Usage: ./ircserv [port] [password]"<<std::endl;
@@ -58,9 +57,10 @@ int main(int argc, char const* argv[])
 					newSd = accept(server->getServerSocket(), NULL, NULL);
 					if (newSd != -1)
 					{
-						std::cout << GREEN << "[STATUS] : New user connected with id " << newSd << "." << RESET << std::endl;
-						if (server->newUser(newSd, argv[2], fdsId))
+						if (server->newUser(newSd, argv[2], fdsId) == 1)
 							delete server;
+						std::cout << GREEN << "[STATUS] : New user connected with id " << newSd << " and join ";
+						std::cout << server->getUserByFdsId(fdsId)->getChannel()->getName() << "[" << server->getUserByFdsId(fdsId)->getChannel()->getChannelId() << "]." << RESET << std::endl;
 						fdsId++;
 					}
 				}
@@ -86,12 +86,12 @@ int main(int argc, char const* argv[])
 				}
 				else
 				{
-					message = "[" + server->getUserByFd(server->fds[i].fd)->getName() + "] " + buffer;
-					server->getUserByFd(server->fds[i].fd)->sendMessage(message, server->fds[i].fd, server->getUserByFd(server->fds[i].fd)->getChannel());
+					message = "[" + server->getUserByFdsId(i)->getName() + "] " + buffer;
+					server->getUserByFdsId(i)->sendMessage(message, server->fds[i].fd, server->getUserByFdsId(i)->getChannel());
 					
-					std::cout << CYAN << "[MESSAGE][" << server->getUserByFd(server->fds[i].fd)->getName();
-					std::cout << "][" << server->getUserByFd(server->fds[i].fd)->getFd() << "] in ";
-					std::cout << server->getUserByFd(server->fds[i].fd)->getChannel()->getName();
+					std::cout << CYAN << "[MESSAGE][" << server->getUserByFdsId(i)->getName();
+					std::cout << "][" << server->getUserByFdsId(i)->getFd() << "] in ";
+					std::cout << server->getUserByFdsId(i)->getChannel()->getName();
 					std::cout << " : " << buffer << RESET;
 				}
 				if (close_conn)

@@ -16,7 +16,7 @@ Channel::Channel(): _name("default"), _topic("default")
 {
 }
 
-Channel::Channel(std::string name, std::string topic) : _name(name), _topic(topic)
+Channel::Channel(std::string name, std::string topic, int id) : _name(name), _topic(topic), _id(id)
 {
 }
 
@@ -26,22 +26,27 @@ Channel::~Channel()
 
 std::string		Channel::getName() const
 {
-	return _name;
+	return this->_name;
 }
 
 std::string		Channel::getTopic() const
 {
-	return _topic;
+	return this->_topic;
+}
+
+int				Channel::getChannelId() const
+{
+	return this->_id;
 }
 
 void			Channel::setName(std::string name)
 {
-	_name = name;
+	this->_name = name;
 }
 
 void			Channel::setTopic(std::string topic)
 {
-	_topic = topic;
+	this->_topic = topic;
 }
 
 std::ostream &	operator<<(std::ostream & o, Channel const &rSym)

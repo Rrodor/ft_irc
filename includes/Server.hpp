@@ -20,12 +20,13 @@ class Server {
 		Server(const char * port);
 		~Server();
 
-		int 											getServerSocket() const;
+		int &											getServerSocket();
 		std::map<std::string, Channel *> &				getChannelsList();
 		User *											getUserByFd(int fd);
 		User *											getUserByFdsId(int fdsId);
 		std::map<int, std::pair<User *, Channel *> > &	getUsersList();
 		int												getChannelSize(Channel * channel) const;
+		int												getChannelsListSize() const;
 
 		int			newUser(int & fd, const char * password, int & fdsId);
 		void		changeUserChannel(std::string channelName, std::string buffer, User * user);
@@ -40,6 +41,7 @@ class Server {
 		int												_serverSocket;
 		struct sockaddr_in								_adress;
 		const int										_port;
+		Channel *										_general;
 		std::map<std::string, Channel *>				_channels;
 		std::map<int, std::pair<User *, Channel *> >	_connectedUsers; 
 };

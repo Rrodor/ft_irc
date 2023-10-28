@@ -17,8 +17,9 @@ Server::Server(const char * port) : current_size(0), _port(std::atoi(port))
 	this->_initServer();
 
 	// Init Channels //
-	Channel * general = new Channel("general", "general");
-	this->_channels.insert(std::pair<std::string, Channel *>("general", general));
+	this->_general = new Channel("general", "general", 0);
+	this->_channels.insert(std::make_pair(this->_general->getName(), this->_general));
+	std::cout << "Channels list size : " << this->getChannelsListSize() << std::endl;
 
 	// Init fds //
 	memset(this->fds, 0 , sizeof(this->fds));
@@ -26,7 +27,7 @@ Server::Server(const char * port) : current_size(0), _port(std::atoi(port))
 	this->fds[0].events = POLLIN;
 }
 
-int	Server::getServerSocket() const	
+int &	Server::getServerSocket()	
 {
 	return this->_serverSocket;
 }
@@ -59,6 +60,21 @@ User *	Server::getUserByFdsId(int fdsId)
 		if (it->second.first->getFdsId() == fdsId)
 			return it->second.first;
 	return it->second.first;
+}
+
+int		Server::getChannelsListSize() const
+{
+	std::map<std::string, Channel *>::const_iterator	it = this->_channels.begin();
+	std::map<std::string, Channel *>::const_iterator	ite = this->_channels.end();
+	int	i = 0;
+
+	while (it != ite)
+	{
+		i++;
+		it++;
+	}
+
+	return i;
 }
 
 void	Server::_initServer() {
@@ -96,11 +112,11 @@ int		Server::newUser(int & fd, const char * password, int & fdsId)
 
 	this->fds[fdsId].fd = fd;
 	this->fds[fdsId].events = POLLIN;
-		
+	std::cout << "TEST: " << this->_general->getName() << std::endl;
 	connectToClient(fd, password);
-	User * user = new User(fd, this->_channels["general"], *this, fdsId);
+	User * user = new User(fd, this->_general, *this, fdsId);
 
-	this->_connectedUsers.insert(std::make_pair(fd, std::make_pair(user, this->_channels["general"])));
+	this->_connectedUsers.insert(std::make_pair(fd, std::make_pair(user, this->_general)));
 	send(fd, "> ", 2, 0);
 
 	return 0;
@@ -144,13 +160,16 @@ void	Server::changeUserChannel(std::string channelName, std::string buffer, User
 	
 	if (channel == NULL)
 	{
-		Channel * newChannel = new Channel(channelName, buffer);
+		Channel * newChannel = new Channel(channelName, buffer, this->getChannelsListSize());
 		this->_channels.insert(std::pair<std::string, Channel *>(channelName, newChannel));
 	}
 	
 	// switch channel
 	Channel * newChannel = this->_channels[channelName];
 	this->_connectedUsers[user->getFd()].first->setChannel(newChannel);
+
+	std::cout << YELLOW << "[STATUS] : User id " << user->getFd() << " named " << user->getName();
+	std::cout << " switched to " << channelName << "." << RESET << std::endl; 
 }
 
 void	Server::printConnectedUsers() const

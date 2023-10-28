@@ -137,11 +137,11 @@ void		User::initNickname()
 
 void 		User::sendMessage(std::string message, int fd, Channel * channel)
 {
-	std::string													channelName = channel->getName();
+	std::string														channelName = channel->getName();
 	std::map<int, std::pair<User *, Channel *> >::const_iterator	it = this->getServer().getUsersList().begin();
 	std::map<int, std::pair<User *, Channel *> >::const_iterator	ite = this->getServer().getUsersList().end();
 
-	std::cout << "Channel dest : " << channelName << std::endl;
+	std::cout << "Channe id : " << channel->getChannelId() << std::endl;
 	while (it != ite)
 	{
 		if (it->first != fd && it->second.second->getName() == channelName)

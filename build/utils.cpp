@@ -175,11 +175,11 @@ bool	getorder(char* buffer, User * user, Server * server)
 	}
 	else if (strcmp(buffer, "/quit") == 0)
 	{
-		close(server->getUserByFd(server->fds[user->getFdsId()].fd)->getFd());
+		server->deleteUser(user->getFd(), user->getName(), user->getFdsId());
 		return 0;
 	}
 	else if (strcmp(buffer, "/rootlist") == 0)
-		user->getServer().printConnectedUsers();
+		server->printConnectedUsers();
 	else if (strcmp(buffer, "/help") == 0)
 		displayHelp(user);
 	else if (strcmp(buffer, "/channel --help") == 0)

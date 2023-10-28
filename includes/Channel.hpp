@@ -20,12 +20,15 @@ class Channel
 	private:
 		std::string			_name;
 		std::string			_topic;
+		int					_id;
 	public:
 		Channel();
-		Channel(std::string name, std::string topic);
+		Channel(std::string name, std::string topic, int id);
 		~Channel();
+
 		std::string					getName() const;
 		std::string					getTopic() const;
+		int							getChannelId() const;
 
 		void			setName(std::string name);
 		void			setTopic(std::string topic);
