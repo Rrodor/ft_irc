@@ -6,7 +6,7 @@
 /*   By: cparras <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/04 16:17:50 by cparras           #+#    #+#             */
-/*   Updated: 2023/10/23 14:17:28 by cparras          ###   ########.fr       */
+/*   Updated: 2023/10/28 17:40:59 by cparras          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,7 +124,7 @@ bool	flagsChecker(std::string buffer)
 		return false;
 }
 
-void	getorder(char* buffer, User * user, Server * server)
+bool	getorder(char* buffer, User * user, Server * server)
 {
 	int	valread;
 	std::string str;
@@ -161,7 +161,7 @@ void	getorder(char* buffer, User * user, Server * server)
 		{
 			std::string name = newChannelName(buffer);
 			server->changeUserChannel(name, name, user);
-			return;
+			return 1;
 		}
 		else 
 		{
@@ -175,8 +175,8 @@ void	getorder(char* buffer, User * user, Server * server)
 	}
 	else if (strcmp(buffer, "/quit") == 0)
 	{
-		server->deleteUser(user->getFd(), user->getName(), user->getFdsId());
-		return;
+		close(server->getUserByFd(server->fds[user->getFdsId()].fd)->getFd());
+		return 0;
 	}
 	else if (strcmp(buffer, "/rootlist") == 0)
 		user->getServer().printConnectedUsers();
@@ -187,4 +187,5 @@ void	getorder(char* buffer, User * user, Server * server)
 	else
 		send(user->getFd(), "Unknown command\n/help for list of commands\n", 44, 0);
 	send(user->getFd(), "> ", 2, 0);
+	return 1;
 }

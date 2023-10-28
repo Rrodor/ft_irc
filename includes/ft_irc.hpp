@@ -6,7 +6,7 @@
 /*   By: cparras <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/05 18:00:47 by cparras           #+#    #+#             */
-/*   Updated: 2023/10/23 14:17:53 by cparras          ###   ########.fr       */
+/*   Updated: 2023/10/28 17:41:05 by cparras          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@
 #include <stdexcept>
 #include <cctype>
 #include <iomanip>
+#include <csignal>
 
 #define RESET   "\033[0m"
 #define BLACK   "\033[30m"      /* Black */
@@ -66,7 +67,7 @@
 //utils.cpp
 bool			checkEmptyName(char *src);
 void			connectToClient(int fd, std::string password);
-void			getorder(char* buffer, User * user, Server * server);
+bool			getorder(char* buffer, User * user, Server * server);
 std::string     trimName(std::string name, bool flag);
 
 #endif

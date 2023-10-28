@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
+/*   By: cparras <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/02 15:42:13 by rrodor            #+#    #+#             */
-/*   Updated: 2023/10/16 18:49:33 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/10/28 17:45:20 by cparras          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 
 int main(int argc, char const* argv[])
 {
+	//signal(SIGINT, signal_handler);	
 	if (argc != 3)
 	{
 		std::cout << "Usage: ./ircserv [port] [password]"<<std::endl;
@@ -73,15 +74,15 @@ int main(int argc, char const* argv[])
 				rc = recv(server->fds[i].fd, buffer, sizeof(buffer), 0);
 				if (rc == 0)
 				{
-					printf("  Connection closed\n");
+					close(server->getUserByFd(server->fds[i].fd)->getFd());
 					close_conn = TRUE;
-					break;
 				}
 				buffer[rc] = '\0';
 				if (buffer[0] == '/')
 				{
 					buffer[rc - 1] = '\0';
-					getorder(buffer, server->getUserByFd(server->fds[i].fd), server);
+					if (!getorder(buffer, server->getUserByFd(server->fds[i].fd), server))
+						close_conn = TRUE;
 				}
 				else
 				{
