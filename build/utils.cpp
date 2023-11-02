@@ -6,7 +6,7 @@
 /*   By: cparras <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/04 16:17:50 by cparras           #+#    #+#             */
-/*   Updated: 2023/10/28 17:40:59 by cparras          ###   ########.fr       */
+/*   Updated: 2023/11/02 13:29:25 by cparras          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,16 +112,16 @@ std::string newChannelName(std::string buffer)
     return result;
 }
 
-bool	flagsChecker(std::string buffer)
+bool    flagsChecker(std::string buffer)
 {
-	int	i = buffer.size();
-	int j = 0;
-	std::string	channelName;
+    int    i = buffer.size() - 1;
 
-	if (buffer[i - 1] == 's' && buffer[i - 2] == '-')
-		return true;
-	else
-		return false;
+    while (buffer[i] == '\n' || buffer[i] == '\t' || buffer[i] == ' ')
+        i--;
+    if (buffer[i] == 's' && buffer[i - 1] == '-')
+        return true;
+    else
+        return false;
 }
 
 bool	getorder(char* buffer, User * user, Server * server)
