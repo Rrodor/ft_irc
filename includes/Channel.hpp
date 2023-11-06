@@ -5,35 +5,25 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/10/04 19:12:29 by rrodor            #+#    #+#             */
-/*   Updated: 2023/10/11 17:36:39 by rrodor           ###   ########.fr       */
+/*   Created: 2023/11/04 18:34:14 by rrodor            #+#    #+#             */
+/*   Updated: 2023/11/04 18:36:37 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CHANNEL_HPP
-# define CHANNEL_HPP
+#ifndef _CHANNEL_HPP_
+# define _CHANNEL_HPP_
 
-class User;
+#include "ft_irc.hpp"
 
 class Channel
 {
-	private:
-		std::string			_name;
-		std::string			_topic;
-		int					_id;
 	public:
-		Channel();
-		Channel(std::string name, std::string topic, int id);
+		std::string	name;
+		std::string	topic;
+		std::vector<User *>	users;
+
+		Channel(std::string name);
 		~Channel();
-
-		std::string					getName() const;
-		std::string					getTopic() const;
-		int							getChannelId() const;
-
-		void			setName(std::string name);
-		void			setTopic(std::string topic);
 };
-
-std::ostream &	operator<<(std::ostream & o, Channel const &rSym);
 
 #endif

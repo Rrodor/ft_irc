@@ -5,53 +5,26 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/10/03 15:15:56 by rrodor            #+#    #+#             */
-/*   Updated: 2023/10/16 18:47:27 by rrodor           ###   ########.fr       */
+/*   Created: 2023/11/04 17:48:02 by rrodor            #+#    #+#             */
+/*   Updated: 2023/11/04 18:44:15 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef USER_HPP
-# define USER_HPP
+#ifndef _USER_HPP_
+#define _USER_HPP_
 
-class Channel;
-class Server;
+#include "ft_irc.hpp"
 
 class User
 {
 	public:
-		User();
-		User(int & fd, Channel * channel, Server & server, int & fdsId);
+		int			fd;
+		std::string	username;
+		std::string	nickname;
+		std::string	realname;
+
+		User(int & fd);
 		~User();
-		User & operator=(User & rhs);
-
-		std::string 	getName() const;
-		std::string 	getNickname() const;
-		bool			getHasNickname() const;
-		int &			getFd();
-		Channel *		getChannel() const;
-		int &			getFdsId();
-		Server &		getServer() const;
-
-		void			setName(std::string name);
-		void			setNickname(std::string nickname);
-		void			setFd(int fd);
-		void			setHasNickname(bool hasNickname);
-		void			setChannel(Channel * channel);
-		void			sendMessage(std::string message, int fd, Channel * channel);
-
-		void			initName();
-		void			initNickname();
-		
-	private:
-		int					_fd;
-		int					_fdsId;
-		std::string 		_name;
-		std::string 		_nickname;
-		bool				_hasNickname;
-		Channel	*			_channel;
-		Server	&			_server;
 };
-
-User	init(int new_socket, const char *password);
 
 #endif

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cparras <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/10/02 15:42:13 by rrodor            #+#    #+#             */
-/*   Updated: 2023/10/28 17:45:20 by cparras          ###   ########.fr       */
+/*   Created: 2023/11/02 14:03:01 by rrodor            #+#    #+#             */
+/*   Updated: 2023/11/06 23:07:13 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,8 +43,9 @@ int main(int argc, char const* argv[])
 	while (1)
 	{
 		std::cout << YELLOW << "[STATUS] : Waiting incoming connection ( poll() )..." << RESET << std::endl;
-		rc = poll(server->fds, fdsId, -1);
+		rc = poll(&(server->fds[0]), fdsId, -1);
 		server->current_size = fdsId;
+		std::cout << "current_size : " << server->current_size << std::endl;
 		for (int i = 0; i < server->current_size; i++)
 		{
 			if(server->fds[i].revents == 0)
@@ -57,10 +58,12 @@ int main(int argc, char const* argv[])
 					newSd = accept(server->getServerSocket(), NULL, NULL);
 					if (newSd != -1)
 					{
-						if (server->newUser(newSd, argv[2], fdsId) == 1)
-							delete server;
-						std::cout << GREEN << "[STATUS] : New user connected with id " << newSd << " and join ";
-						std::cout << server->getUserByFdsId(fdsId)->getChannel()->getName() << "[" << server->getUserByFdsId(fdsId)->getChannel()->getChannelId() << "]." << RESET << std::endl;
+						//if (server->newUser(newSd, argv[2], fdsId) == 1)
+						//	delete server;
+						server->newUser(newSd);
+						std::cout << "New user connected with id " << newSd << std::endl;
+						//std::cout << GREEN << "[STATUS] : New user connected with id " << newSd << " and join ";
+						//std::cout << server->getUserByFdsId(fdsId)->getChannel()->getName() << "[" << server->getUserByFdsId(fdsId)->getChannel()->getChannelId() << "]." << RESET << std::endl;
 						fdsId++;
 					}
 				}
@@ -69,31 +72,16 @@ int main(int argc, char const* argv[])
 				break;
 			else
 			{
+				std::cout << "test" << std::endl;
 				close_conn = FALSE;
-				send(server->fds[i].fd, "> ", 2, 0);
 				rc = recv(server->fds[i].fd, buffer, sizeof(buffer), 0);
-				if (rc == 0)
+				/*if (rc == 0)
 				{
 					close(server->getUserByFd(server->fds[i].fd)->getFd());
 					close_conn = TRUE;
-				}
+				}*/
 				buffer[rc] = '\0';
-				if (buffer[0] == '/')
-				{
-					buffer[rc - 1] = '\0';
-					if (!getorder(buffer, server->getUserByFd(server->fds[i].fd), server))
-						close_conn = TRUE;
-				}
-				else
-				{
-					message = "[" + server->getUserByFdsId(i)->getName() + "] " + buffer;
-					server->getUserByFdsId(i)->sendMessage(message, server->fds[i].fd, server->getUserByFdsId(i)->getChannel());
-					
-					std::cout << CYAN << "[MESSAGE][" << server->getUserByFdsId(i)->getName();
-					std::cout << "][" << server->getUserByFdsId(i)->getFd() << "] in ";
-					std::cout << server->getUserByFdsId(i)->getChannel()->getName();
-					std::cout << " : " << buffer << RESET;
-				}
+				interpretor(buffer, server->fds[i].fd, server);
 				if (close_conn)
 				{
 					close(server->fds[i].fd);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_irc.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cparras <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/10/05 18:00:47 by cparras           #+#    #+#             */
-/*   Updated: 2023/10/28 17:41:05 by cparras          ###   ########.fr       */
+/*   Created: 2023/11/02 14:04:04 by rrodor            #+#    #+#             */
+/*   Updated: 2023/11/04 18:36:31 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,19 +55,16 @@
 #define BOLDCYAN    "\033[1m\033[36m"      /* Bold Cyan */
 #define BOLDWHITE   "\033[1m\033[37m"      /* Bold White */
 
-
-#include "Channel.hpp"
-#include "User.hpp"
-#include "Server.hpp"
-
 #define BUFFSIZE	1024
 #define TRUE		1
 #define FALSE		0
 
-//utils.cpp
-bool			checkEmptyName(char *src);
-void			connectToClient(int fd, std::string password);
-bool			getorder(char* buffer, User * user, Server * server);
-std::string     trimName(std::string name, bool flag);
+#include "Server.hpp"
+#include "User.hpp"
+#include "Channel.hpp"
+
+//interceptor.cpp
+void interpretor(char *message, int fd, Server * server);
+User	*findUser(int fd, Server * server);
 
 #endif

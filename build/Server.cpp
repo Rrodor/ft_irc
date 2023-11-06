@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/10/06 13:35:22 by babreton          #+#    #+#             */
-/*   Updated: 2023/10/14 19:09:32 by rrodor           ###   ########.fr       */
+/*   Created: 2023/11/02 16:24:05 by rrodor            #+#    #+#             */
+/*   Updated: 2023/11/06 23:07:31 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,65 +16,19 @@ Server::Server(const char * port) : current_size(0), _port(std::atoi(port))
 {
 	this->_initServer();
 
-	// Init Channels //
-	this->_general = new Channel("general", "general", 0);
-	this->_channels.insert(std::make_pair(this->_general->getName(), this->_general));
-	std::cout << "Channels list size : " << this->getChannelsListSize() << std::endl;
+	/* Init Channels //
+	//this->_general = new Channel("general", "general", 0);
+	//this->_channels.insert(std::make_pair(this->_general->getName(), this->_general));
+	std::cout << "Channels list size : " << this->getChannelsListSize() << std::endl;*/
 
-	// Init fds //
-	memset(this->fds, 0 , sizeof(this->fds));
+	fds.push_back(pollfd());
 	this->fds[0].fd = this->_serverSocket;
 	this->fds[0].events = POLLIN;
 }
 
-int &	Server::getServerSocket()	
+int		Server::getServerSocket() const
 {
 	return this->_serverSocket;
-}
-
-std::map<int, std::pair<User *, Channel *> > &	Server::getUsersList()
-{
-	return this->_connectedUsers;
-}
-
-std::map<std::string, Channel *> &				Server::getChannelsList()
-{
-	return this->_channels;
-}
-
-User *	Server::getUserByFd(int fd)
-{
-	std::map<int, std::pair<User *, Channel *> >::iterator	it;
-
-	for (it = this->_connectedUsers.begin(); it != this->_connectedUsers.end(); it++)
-		if (it->first == fd)
-			return it->second.first;
-	return it->second.first;
-}
-
-User *	Server::getUserByFdsId(int fdsId)
-{
-	std::map<int, std::pair<User *, Channel *> >::iterator	it;
-
-	for (it = this->_connectedUsers.begin(); it != this->_connectedUsers.end(); it++)
-		if (it->second.first->getFdsId() == fdsId)
-			return it->second.first;
-	return it->second.first;
-}
-
-int		Server::getChannelsListSize() const
-{
-	std::map<std::string, Channel *>::const_iterator	it = this->_channels.begin();
-	std::map<std::string, Channel *>::const_iterator	ite = this->_channels.end();
-	int	i = 0;
-
-	while (it != ite)
-	{
-		i++;
-		it++;
-	}
-
-	return i;
 }
 
 void	Server::_initServer() {
@@ -90,6 +44,7 @@ void	Server::_initServer() {
 	if (ioctl(this->_serverSocket, FIONBIO, (char *)&opt))
 		throw std::runtime_error("[ERROR] : can't recover device information, please check your permissions or cpu arch.");
 
+	memset((char *)&this->_adress, 0, sizeof(this->_adress));
 	this->_adress.sin_family = AF_INET;
 	this->_adress.sin_addr.s_addr = inet_addr("127.0.0.1");
 	this->_adress.sin_port = htons(this->_port);
@@ -99,98 +54,90 @@ void	Server::_initServer() {
 
 	if (listen(this->_serverSocket, 3) < 0)
 		throw std::runtime_error("[ERROR] : can't listen on the adress, please check your permissions or cpu arch.");
-
 }
 
-int		Server::newUser(int & fd, const char * password, int & fdsId)
+/*void	Server::newUser(int & fd)
 {
-	if (fd == -1)
+	int rc;
+	int i = 5;
+	char buffer[BUFFSIZE + 1];
+
+	User *newuser = new User(fd);
+	rc = read(fd, buffer, BUFFSIZE);
+	rc = read(fd, buffer, BUFFSIZE);
+	buffer[rc] = '\0';
+	//std::cout << "nick : " << buffer << std::endl;
+	newuser->nickname = buffer + 5;
+	rc = read(fd, buffer, BUFFSIZE);
+	buffer[rc] = '\0';
+	//std::cout << "user : " << buffer << std::endl;
+	while (buffer[i] != ' ')
+		i++;
+	buffer[i] = '\0';
+	newuser->username = strdup(buffer + 5);
+	newuser->realname = strdup(buffer + i + 4);
+	this->users.push_back(newuser);
+	std::cout << "new user connected, nickname :" << newuser->nickname;
+	std::cout << " username :" << newuser->username;
+	std::cout << " realname :" << newuser->realname << std::endl;
+
+	std::string rpl_welcome = ":ft_irc 001 " + newuser->nickname + " :Welcome to the ft_irc Network, ";
+	rpl_welcome += newuser->nickname + "\r\n";
+	//rpl_welcome += newuser->nickname + "!" + newuser->username + "@" + newuser->realname + "\r\n";
+
+	std::string rpl_yourhost = ":ft_irc 001 " + newuser->nickname + " :Your host is ft_irc, running version 1.0\r\n";
+
+	std::string rpl_created = ":ft_irc 001 " + newuser->nickname + " :This server was created 2023/11/04 19:37:27\r\n";
+
+	std::string rpl_myinfo = ":ft_irc 001 " + newuser->nickname + " :ft_irc 1.0 aoOirw abeiIklmnoOpqrstv\r\n";
+
+	std::string rpl_msgoftheday = ":ft_irc 001 " + newuser->nickname + " :- ft_irc Message of the day - \r\n";
+	send(fd, rpl_welcome.c_str() , 18, 0);
+	send(fd, rpl_yourhost.c_str() , 18, 0);
+	send(fd, rpl_created.c_str() , 18, 0);
+	send(fd, rpl_myinfo.c_str() , 18, 0);
+	send(fd, rpl_msgoftheday.c_str() , 18, 0);
+}*/
+
+void	Server::newUser(int & fd)
+{
+	int rc;
+	int i = 5;
+	char buffer[BUFFSIZE + 1];
+	User *newuser = new User(fd);
+
+	rc = read(fd, buffer, BUFFSIZE);
+	buffer[rc] = '\0';
+	std::cout << "buffer : " << buffer << std::endl;
+	if (strncmp(buffer, "CAP", 3) == 0)
 	{
-		std::cerr << "[ERROR] : Fatal error client." << std::endl;
-		return 1;
+		std::cout << "CAP" << std::endl;
+		rc = read(fd, buffer, BUFFSIZE);
+		buffer[rc] = '\0';
 	}
-
-	this->fds[fdsId].fd = fd;
-	this->fds[fdsId].events = POLLIN;
-	std::cout << "TEST: " << this->_general->getName() << std::endl;
-	connectToClient(fd, password);
-	User * user = new User(fd, this->_general, *this, fdsId);
-
-	this->_connectedUsers.insert(std::make_pair(fd, std::make_pair(user, this->_general)));
-	send(fd, "> ", 2, 0);
-
-	return 0;
-}
-
-int		Server::getChannelSize(Channel * channel) const
-{
-	std::map<int, std::pair<User *, Channel *> >::const_iterator	it = this->_connectedUsers.begin();
-	std::map<int, std::pair<User *, Channel *> >::const_iterator	ite = this->_connectedUsers.end();
-	
-	int	i = 0;
-
-	while (it != ite)
+	if (strncmp(buffer, "NICK", 4) == 0)
 	{
-		if (it->second.second->getName() == channel->getName())
+		std::cout << "NICK" << std::endl;
+		newuser->nickname = buffer + 5;
+		rc = read(fd, buffer, BUFFSIZE);
+		buffer[rc] = '\0';
+	}
+	if (strncmp(buffer, "USER", 4) == 0)
+	{
+		std::cout << "USER" << std::endl;
+		while (buffer[i] != ' ')
 			i++;
-		it++;
+		buffer[i] = '\0';
+		newuser->username = strdup(buffer + 5);
+		newuser->realname = strdup(buffer + i + 4);
 	}
+	this->users.push_back(newuser);
+	std::cout << "new user connected, nickname :" << newuser->nickname;
+	//current_size++;
 
-	return i;
-}
-
-void	Server::changeUserChannel(std::string channelName, std::string buffer, User * user)
-{
-	std::map<std::string, Channel *>::iterator	it = this->_channels.begin();
-	std::map<std::string, Channel *>::iterator	ite = this->_channels.end();
-
-	Channel *	channel = NULL;
-	
-	// check if channel exist
-	while (it != ite)
-	{
-		if (channelName == it->second->getName())
-			channel = it->second;
-		it++;
-	}
-
-	// only delete empty channel, but not the main one
-	if (user->getChannel()->getName() != "général" || this->getChannelSize(user->getChannel()) == 1)
-		delete user->getChannel();
-	
-	if (channel == NULL)
-	{
-		Channel * newChannel = new Channel(channelName, buffer, this->getChannelsListSize());
-		this->_channels.insert(std::pair<std::string, Channel *>(channelName, newChannel));
-	}
-	
-	// switch channel
-	Channel * newChannel = this->_channels[channelName];
-	this->_connectedUsers[user->getFd()].first->setChannel(newChannel);
-
-	std::cout << YELLOW << "[STATUS] : User id " << user->getFd() << " named " << user->getName();
-	std::cout << " switched to " << channelName << "." << RESET << std::endl; 
-}
-
-void	Server::printConnectedUsers() const
-{
-	std::map<int, std::pair<User *, Channel *> >::const_iterator	it;
-
-	for (it = this->_connectedUsers.begin(); it != this->_connectedUsers.end(); it++)
-	{
-		std::cout << "User : " << it->second.first->getName() << " connected with socket ";
-		std::cout << it->first << " and fdsId " << it->second.first->getFdsId() << ". Channel : ";
-		std::cout << it->second.second->getName() << std::endl;
-	}
-}
-
-void	Server::deleteUser(int fd, std::string name, int fdsId)
-{
-	std::cout << RED << "[STATUS] : deleting user id " << fd << " named " << name << "." << RESET << std::endl;
-	close(this->fds[fdsId].fd);
-	this->fds[fdsId].fd = -1;
-	delete this->_connectedUsers.find(fd)->second.first;
-	this->_connectedUsers.erase(fd);
+	fds.push_back(pollfd());
+	this->fds[current_size].fd = fd;
+	this->fds[current_size].events = POLLIN;
 }
 
 Server::~Server()
