@@ -6,7 +6,7 @@
 /*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 16:24:05 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/06 23:07:31 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/11/07 17:05:52 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,49 +56,6 @@ void	Server::_initServer() {
 		throw std::runtime_error("[ERROR] : can't listen on the adress, please check your permissions or cpu arch.");
 }
 
-/*void	Server::newUser(int & fd)
-{
-	int rc;
-	int i = 5;
-	char buffer[BUFFSIZE + 1];
-
-	User *newuser = new User(fd);
-	rc = read(fd, buffer, BUFFSIZE);
-	rc = read(fd, buffer, BUFFSIZE);
-	buffer[rc] = '\0';
-	//std::cout << "nick : " << buffer << std::endl;
-	newuser->nickname = buffer + 5;
-	rc = read(fd, buffer, BUFFSIZE);
-	buffer[rc] = '\0';
-	//std::cout << "user : " << buffer << std::endl;
-	while (buffer[i] != ' ')
-		i++;
-	buffer[i] = '\0';
-	newuser->username = strdup(buffer + 5);
-	newuser->realname = strdup(buffer + i + 4);
-	this->users.push_back(newuser);
-	std::cout << "new user connected, nickname :" << newuser->nickname;
-	std::cout << " username :" << newuser->username;
-	std::cout << " realname :" << newuser->realname << std::endl;
-
-	std::string rpl_welcome = ":ft_irc 001 " + newuser->nickname + " :Welcome to the ft_irc Network, ";
-	rpl_welcome += newuser->nickname + "\r\n";
-	//rpl_welcome += newuser->nickname + "!" + newuser->username + "@" + newuser->realname + "\r\n";
-
-	std::string rpl_yourhost = ":ft_irc 001 " + newuser->nickname + " :Your host is ft_irc, running version 1.0\r\n";
-
-	std::string rpl_created = ":ft_irc 001 " + newuser->nickname + " :This server was created 2023/11/04 19:37:27\r\n";
-
-	std::string rpl_myinfo = ":ft_irc 001 " + newuser->nickname + " :ft_irc 1.0 aoOirw abeiIklmnoOpqrstv\r\n";
-
-	std::string rpl_msgoftheday = ":ft_irc 001 " + newuser->nickname + " :- ft_irc Message of the day - \r\n";
-	send(fd, rpl_welcome.c_str() , 18, 0);
-	send(fd, rpl_yourhost.c_str() , 18, 0);
-	send(fd, rpl_created.c_str() , 18, 0);
-	send(fd, rpl_myinfo.c_str() , 18, 0);
-	send(fd, rpl_msgoftheday.c_str() , 18, 0);
-}*/
-
 void	Server::newUser(int & fd)
 {
 	int rc;
@@ -111,20 +68,20 @@ void	Server::newUser(int & fd)
 	std::cout << "buffer : " << buffer << std::endl;
 	if (strncmp(buffer, "CAP", 3) == 0)
 	{
-		std::cout << "CAP" << std::endl;
 		rc = read(fd, buffer, BUFFSIZE);
 		buffer[rc] = '\0';
 	}
 	if (strncmp(buffer, "NICK", 4) == 0)
 	{
-		std::cout << "NICK" << std::endl;
-		newuser->nickname = buffer + 5;
+		//std::cout << "NICK" << std::endl;
+		buffer[rc - 2] = '\0';
+		newuser->nickname = strdup(buffer + 5);
 		rc = read(fd, buffer, BUFFSIZE);
 		buffer[rc] = '\0';
 	}
 	if (strncmp(buffer, "USER", 4) == 0)
 	{
-		std::cout << "USER" << std::endl;
+		//std::cout << "USER" << std::endl;
 		while (buffer[i] != ' ')
 			i++;
 		buffer[i] = '\0';
@@ -132,12 +89,15 @@ void	Server::newUser(int & fd)
 		newuser->realname = strdup(buffer + i + 4);
 	}
 	this->users.push_back(newuser);
-	std::cout << "new user connected, nickname :" << newuser->nickname;
 	//current_size++;
 
 	fds.push_back(pollfd());
 	this->fds[current_size].fd = fd;
 	this->fds[current_size].events = POLLIN;
+
+	std::string message = ":127.0.0.1 001 " + newuser->nickname + " :Welcome to the ft_irc network, " + newuser->nickname + "\r\n";
+	std::cout << "message : " << message << std::endl;
+	send(fd, message.c_str(), message.length(), 0);
 }
 
 Server::~Server()

@@ -6,7 +6,7 @@
 /*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 14:03:01 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/06 23:07:13 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/11/07 15:31:45 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,6 @@ int main(int argc, char const* argv[])
 		std::cout << YELLOW << "[STATUS] : Waiting incoming connection ( poll() )..." << RESET << std::endl;
 		rc = poll(&(server->fds[0]), fdsId, -1);
 		server->current_size = fdsId;
-		std::cout << "current_size : " << server->current_size << std::endl;
 		for (int i = 0; i < server->current_size; i++)
 		{
 			if(server->fds[i].revents == 0)
@@ -72,7 +71,6 @@ int main(int argc, char const* argv[])
 				break;
 			else
 			{
-				std::cout << "test" << std::endl;
 				close_conn = FALSE;
 				rc = recv(server->fds[i].fd, buffer, sizeof(buffer), 0);
 				/*if (rc == 0)

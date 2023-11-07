@@ -6,7 +6,7 @@
 /*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:21:37 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/06 18:46:14 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/11/07 17:07:36 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,11 +24,13 @@ User	*findUser(int fd, Server * server)
 
 void	commands(char *message, User *user, Server *server)
 {
-	if (strncmp(message, "/JOIN", 5) == 0)
+	if (strncmp(message, "JOIN", 4) == 0)
 	{
 		Channel *channel = new Channel(message + 6);
 		channel->users.push_back(user);
 		server->channels.push_back(channel);
+		std::string rpl_join = ":" + user->nickname + " JOIN " + channel->name + "\r\n";
+		send(user->fd, rpl_join.c_str(), rpl_join.length(), 0);
 	}
 	else
 		send(user->fd, "Command not found", 17, 0);
@@ -43,7 +45,7 @@ void	interpretor(char *message, int fd, Server * server)
 		std::cout << "[ERROR] : User not found" << std::endl;
 		return ;
 	}
-	if (message[0] == '/')
+	if (message[0] >= 'A' && message[0] <= 'Z')
 		commands(message, user, server);
 	else
 		std::cout << "Message from " << user->nickname << " : " << message << std::endl;
