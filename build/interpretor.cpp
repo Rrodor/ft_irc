@@ -6,7 +6,7 @@
 /*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:21:37 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/07 17:07:36 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/11/10 14:51:01 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,11 +26,21 @@ void	commands(char *message, User *user, Server *server)
 {
 	if (strncmp(message, "JOIN", 4) == 0)
 	{
-		Channel *channel = new Channel(message + 6);
-		channel->users.push_back(user);
-		server->channels.push_back(channel);
-		std::string rpl_join = ":" + user->nickname + " JOIN " + channel->name + "\r\n";
-		send(user->fd, rpl_join.c_str(), rpl_join.length(), 0);
+		std::cout << "JOIN command" << std::endl;
+		irc_join(message, user, server);
+
+		std::string rpl_list = "CHANNELLIST ";
+		for (std::vector<Channel *>::iterator it = server->channels.begin(); it != server->channels.end(); ++it)
+		{
+			rpl_list += "|" + (*it)->name + "|";
+		}
+		rpl_list += "\r\n";
+		std::cout << "list " << rpl_list << std::endl;
+	}
+	else if (strncmp(message, "PRIVMSG", 7) == 0)
+	{
+		std::cout << "PRIVMSG command" << std::endl;
+		irc_privmsg(message, user, server);
 	}
 	else
 		send(user->fd, "Command not found", 17, 0);
@@ -46,7 +56,10 @@ void	interpretor(char *message, int fd, Server * server)
 		return ;
 	}
 	if (message[0] >= 'A' && message[0] <= 'Z')
+	{
+		std::cout << "Command" << std::endl;
 		commands(message, user, server);
+	}
 	else
 		std::cout << "Message from " << user->nickname << " : " << message << std::endl;
 }

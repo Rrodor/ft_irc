@@ -6,7 +6,7 @@
 /*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 14:04:04 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/04 18:36:31 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/11/10 14:41:01 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,5 +66,10 @@
 //interceptor.cpp
 void interpretor(char *message, int fd, Server * server);
 User	*findUser(int fd, Server * server);
+void	commands(char *message, User *user, Server *server);
+
+//commands.cpp
+void	irc_join(char *message, User *user, Server *server);
+void	irc_privmsg(char *message, User *user, Server *server);
 
 #endif
