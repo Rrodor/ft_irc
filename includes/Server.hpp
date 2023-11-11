@@ -6,7 +6,7 @@
 /*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 15:41:33 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/04 18:40:45 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/11/11 18:41:35 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,12 +25,19 @@ class Server
 		int							current_size;
 		std::vector<User *>			users;
 		std::vector<Channel *>		channels;
+		std::string					password;
 
-		Server(const char * port);
+		Server(const char * port, std::string password);
 		~Server();
 
 		int		getServerSocket() const;
 		void	newUser(int & fd);
+
+		class WrongPasswordException : public std::exception
+		{
+			public:
+				virtual const char* what() const throw();
+		};
 	private:
 		void	_initServer();
 		int									_serverSocket;

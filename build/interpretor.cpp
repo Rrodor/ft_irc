@@ -6,7 +6,7 @@
 /*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:21:37 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/10 14:51:01 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/11/11 14:17:39 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,17 @@ void	commands(char *message, User *user, Server *server)
 	{
 		std::cout << "PRIVMSG command" << std::endl;
 		irc_privmsg(message, user, server);
+	}
+	else if (strncmp(message, "PING", 4) == 0)
+	{
+		std::cout << "PING command" << std::endl;
+		std::string rpl_pong = "PONG " + std::string(message + 5) + "\r\n";
+		send(user->fd, rpl_pong.c_str(), rpl_pong.length(), 0);
+	}
+	else if (strncmp(message , "PART", 4) == 0)
+	{
+		std::cout << "PART command" << std::endl;
+		irc_part(message, user, server);
 	}
 	else
 		send(user->fd, "Command not found", 17, 0);

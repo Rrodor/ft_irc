@@ -6,15 +6,16 @@
 /*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 16:24:05 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/07 17:05:52 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/11/11 18:47:53 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/ft_irc.hpp"
 
-Server::Server(const char * port) : current_size(0), _port(std::atoi(port))
+Server::Server(const char * port, std::string password) : current_size(0), _port(std::atoi(port))
 {
 	this->_initServer();
+	this->password = password;
 
 	/* Init Channels //
 	//this->_general = new Channel("general", "general", 0);
@@ -66,6 +67,26 @@ void	Server::newUser(int & fd)
 	rc = read(fd, buffer, BUFFSIZE);
 	buffer[rc] = '\0';
 	std::cout << "buffer : " << buffer << std::endl;
+	if (strncmp(buffer, "PASS", 4) == 0)
+	{
+		std::cout << "PASS" << std::endl;
+		buffer[rc - 2] = '\0';
+		std::string pass = buffer + 5;
+		if (pass != this->password)
+		{
+			std::string message = ERR_PASSWDMISMATCH;
+			send(fd, message.c_str(), message.length(), 0);
+			throw (WrongPasswordException());
+		}
+		rc = read(fd, buffer, BUFFSIZE);
+		buffer[rc] = '\0';
+	}
+	else
+	{
+		std::string message = ERR_PASSWDMISMATCH;
+		send(fd, message.c_str(), message.length(), 0);
+		throw (WrongPasswordException());
+	}
 	if (strncmp(buffer, "CAP", 3) == 0)
 	{
 		rc = read(fd, buffer, BUFFSIZE);
@@ -103,4 +124,9 @@ void	Server::newUser(int & fd)
 Server::~Server()
 {
 	shutdown(this->_serverSocket, SHUT_RDWR);
+}
+
+const char* Server::WrongPasswordException::what() const throw()
+{
+	return "Wrong password.";
 }

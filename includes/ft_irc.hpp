@@ -6,7 +6,7 @@
 /*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 14:04:04 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/10 14:41:01 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/11/11 18:38:16 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,8 @@
 #include <cctype>
 #include <iomanip>
 #include <csignal>
+#include <exception>
+#include <stdexcept>
 
 #define RESET   "\033[0m"
 #define BLACK   "\033[30m"      /* Black */
@@ -59,6 +61,8 @@
 #define TRUE		1
 #define FALSE		0
 
+#define ERR_PASSWDMISMATCH		"464"
+
 #include "Server.hpp"
 #include "User.hpp"
 #include "Channel.hpp"
@@ -71,5 +75,6 @@ void	commands(char *message, User *user, Server *server);
 //commands.cpp
 void	irc_join(char *message, User *user, Server *server);
 void	irc_privmsg(char *message, User *user, Server *server);
+void	irc_part(char *message, User *user, Server *server);
 
 #endif

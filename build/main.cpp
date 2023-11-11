@@ -6,7 +6,7 @@
 /*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 14:03:01 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/07 15:31:45 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/11/11 18:47:18 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ int main(int argc, char const* argv[])
 	Server			*server;
 	try
 	{
-		server = new Server(argv[1]);
+		server = new Server(argv[1], argv[2]);
 	}
 	catch(const std::exception& e)
 	{
@@ -59,11 +59,17 @@ int main(int argc, char const* argv[])
 					{
 						//if (server->newUser(newSd, argv[2], fdsId) == 1)
 						//	delete server;
-						server->newUser(newSd);
-						std::cout << "New user connected with id " << newSd << std::endl;
-						//std::cout << GREEN << "[STATUS] : New user connected with id " << newSd << " and join ";
-						//std::cout << server->getUserByFdsId(fdsId)->getChannel()->getName() << "[" << server->getUserByFdsId(fdsId)->getChannel()->getChannelId() << "]." << RESET << std::endl;
-						fdsId++;
+						try
+						{
+							server->newUser(newSd);
+							std::cout << "New user connected with id " << newSd << std::endl;
+							fdsId++;
+						}
+						catch (const std::exception& e)
+						{
+							std::cerr << "[ERROR] : Error during user creation : " << std::endl;
+							std::cerr <<  e.what() << std::endl;
+						}
 					}
 				}
 			}
