@@ -6,7 +6,7 @@
 /*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:34:14 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/13 15:37:59 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/11/13 20:01:52 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,8 @@ class Channel
 		std::string				topic;
 		std::vector<User *>		users;
 		std::vector<User *>		operators;
+
+		bool	isInChannel(User *user);
 
 		Channel(std::string name);
 		~Channel();

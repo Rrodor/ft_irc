@@ -6,7 +6,7 @@
 /*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:36:08 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/04 18:36:20 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/11/13 20:02:17 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,4 +19,21 @@ Channel::Channel(std::string name)
 
 Channel::~Channel()
 {
+}
+
+bool	Channel::isInChannel(User *user)
+{
+	if (!user)
+		return false;
+
+	std::vector<User *>::iterator		it = this->users.begin();
+	std::vector<User *>::iterator		ite = this->users.end();
+
+	while (it != ite)
+	{
+		if (user == *it)
+			return true;
+		it++;
+	}
+	return false;
 }

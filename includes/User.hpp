@@ -6,7 +6,7 @@
 /*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 17:48:02 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/04 18:44:15 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/11/13 19:58:53 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,9 @@ class User
 
 		User(int & fd);
 		~User();
+
+		bool	operator==(User & user);
+		bool	operator!=(User & user);
 };
 
 #endif

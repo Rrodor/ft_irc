@@ -6,7 +6,7 @@
 /*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/10 11:54:12 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/13 19:50:14 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/11/13 20:03:14 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,4 +158,32 @@ void	irc_names(Channel *channel, User *user, Server *server)
 	std::string rpl_endnames = ":127.0.0.1 366 " + user->nickname + " #" + channel->name + " :End of /NAMES list.\r\n";
 	send(user->fd, rpl_endnames.c_str(), rpl_endnames.length(), 0);
 	std::cout << rpl_endnames << std::endl;
+}
+
+void	irc_quit(char *message, User *user, Server *server)
+{
+
+}
+
+
+void	irc_nick(char *message, User *user, Server *server)
+{
+	message = message + 5;
+	message = strtok(message, "\r\n");
+	std::string	oldNick = user->nickname;
+	user->nickname = message;
+	for (std::vector<Channel *>::iterator it = server->channels.begin(); it != server->channels.end(); ++it)
+	{
+		if ((*it)->isInChannel(user))
+		{
+			for (std::vector<User *>::iterator itb = (*it)->users.begin(); itb != (*it)->users.end(); ++itb)
+			{
+				// if (user != *itb)
+				{
+					std::string rpl_nick = ":" + oldNick + " NICK " + message + "\r\n";
+					send((*itb)->fd, rpl_nick.c_str(), rpl_nick.length(), 0);
+				}
+			}
+		}
+	}
 }

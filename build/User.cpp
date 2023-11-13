@@ -6,7 +6,7 @@
 /*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:26:34 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/04 18:26:52 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/11/13 19:59:41 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,4 +19,18 @@ User::User(int & fd)
 
 User::~User()
 {
+}
+
+bool	User::operator==(User & user)
+{
+	if (this->fd == user.fd)
+		return true;
+	return false;
+}
+
+bool	User::operator!=(User & user)
+{
+	if (this->fd == user.fd)
+		return false;
+	return true;
 }
