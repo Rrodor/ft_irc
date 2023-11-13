@@ -6,7 +6,7 @@
 /*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 14:04:04 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/11 18:38:16 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/11/13 16:55:26 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,5 +76,6 @@ void	commands(char *message, User *user, Server *server);
 void	irc_join(char *message, User *user, Server *server);
 void	irc_privmsg(char *message, User *user, Server *server);
 void	irc_part(char *message, User *user, Server *server);
+void	irc_names(Channel *channel, User *user, Server *server);
 
 #endif

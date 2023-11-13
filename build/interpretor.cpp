@@ -6,7 +6,7 @@
 /*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:21:37 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/11 14:17:39 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/11/13 16:19:14 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ void	commands(char *message, User *user, Server *server)
 		std::cout << "JOIN command" << std::endl;
 		irc_join(message, user, server);
 
-		std::string rpl_list = "CHANNELLIST ";
+		std::string rpl_list = "CHANNEL LIST ";
 		for (std::vector<Channel *>::iterator it = server->channels.begin(); it != server->channels.end(); ++it)
 		{
 			rpl_list += "|" + (*it)->name + "|";
