@@ -187,3 +187,53 @@ void	irc_nick(char *message, User *user, Server *server)
 		}
 	}
 }
+
+void	send_log(int & fd, const char * message, Server * server)
+{
+	std::vector<User *>::iterator	it = server->users.begin();
+	std::vector<User *>::iterator	ite = server->users.end();
+	std::string						name;
+	char *							string = (char *)message;
+
+	string = strtok(string, "\r\n");
+	while (it != ite && name.empty())
+	{
+		if (fd == (*it)->fd)
+			name = (*it)->nickname;
+		it++;
+	}
+	std::cout << GREEN;
+	if (name.empty())
+		std::cout << "[" << fd << " - new user] : ";
+	else
+		std::cout << "[" << fd << " - " << name << "] : ";
+	std::cout << string << RESET << std::endl;
+}
+
+void	read_log(int & fd, char * buffer, Server * server)
+{
+	std::vector<User *>::iterator	it = server->users.begin();
+	std::vector<User *>::iterator	ite = server->users.end();
+	std::string						name;
+
+	buffer = strtok(buffer, "\r\n");
+	while (it != ite && name.empty())
+	{
+		if (fd == (*it)->fd)
+			name = (*it)->nickname;
+		it++;
+	}
+	std::cout << CYAN;
+	if (name.empty())
+		std::cout << "[" << fd << " - new user] : ";
+	else
+		std::cout << "[" << fd << " - " << name << "] : ";
+	std::cout << buffer << RESET << std::endl;
+}
+
+void	irc_mode(char *message, User *user, Server *server)
+{
+	message = message + 6;
+	std::string rpl_mode = ":127.0.0.1 #" + user->nickname + " #" + message + "\r\n";
+	send(user->fd, rpl_mode.c_str(), rpl_mode.length(), 0);
+}

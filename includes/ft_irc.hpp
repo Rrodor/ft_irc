@@ -41,12 +41,13 @@
 
 #define RESET   "\033[0m"
 #define BLACK   "\033[30m"      /* Black */
-#define RED     "\033[31m"      /* Red */
-#define GREEN   "\033[32m"      /* Green */
-#define YELLOW  "\033[33m"      /* Yellow */
+#define RED     "\033[31m[ERROR] : "      /* Red */
+#define GREEN   "\033[32m[SND_BUFFER]"      /* Green */
+#define YELLOW  "\033[33m[STATUS] : "      /* Yellow */
+#define COMMAND "\033[33m[COMMAND] "
 #define BLUE    "\033[34m"      /* Blue */
-#define MAGENTA "\033[35m"      /* Magenta */
-#define CYAN    "\033[36m"      /* Cyan */
+#define MAGENTA "\033[35m[COMMAND]"      /* Magenta */
+#define CYAN    "\033[36m[RCV_BUFFER]"      /* Cyan */
 #define WHITE   "\033[37m"      /* White */
 #define BOLDBLACK   "\033[1m\033[30m"      /* Bold Black */
 #define BOLDRED     "\033[1m\033[31m"      /* Bold Red */
@@ -79,5 +80,8 @@ void	irc_part(char *message, User *user, Server *server);
 void	irc_names(Channel *channel, User *user, Server *server);
 void	irc_quit(char *message, User *user, Server *server);
 void	irc_nick(char *message, User *user, Server *server);
+void	irc_mode(char *message, User *user, Server *server);
+void	send_log(int & fd, const char * message, Server * server);
+void	read_log(int & fd, char * buffer, Server * server);
 
 #endif

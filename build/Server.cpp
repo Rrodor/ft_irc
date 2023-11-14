@@ -66,43 +66,45 @@ void	Server::newUser(int & fd)
 
 	rc = read(fd, buffer, BUFFSIZE);
 	buffer[rc] = '\0';
-	std::cout << "buffer : " << buffer << std::endl;
+	read_log(fd, buffer, this);
 	if (strncmp(buffer, "PASS", 4) == 0)
 	{
-		std::cout << "PASS" << std::endl;
 		buffer[rc - 2] = '\0';
 		std::string pass = buffer + 5;
 		if (pass != this->password)
 		{
 			std::string message = ERR_PASSWDMISMATCH;
 			send(fd, message.c_str(), message.length(), 0);
+			send_log(fd, message.c_str(), this);
 			throw (WrongPasswordException());
 		}
 		rc = read(fd, buffer, BUFFSIZE);
 		buffer[rc] = '\0';
+		read_log(fd, buffer, this);
 	}
 	else
 	{
 		std::string message = ERR_PASSWDMISMATCH;
 		send(fd, message.c_str(), message.length(), 0);
+		send_log(fd, message.c_str(), this);
 		throw (WrongPasswordException());
 	}
 	if (strncmp(buffer, "CAP", 3) == 0)
 	{
 		rc = read(fd, buffer, BUFFSIZE);
 		buffer[rc] = '\0';
+		read_log(fd, buffer, this);
 	}
 	if (strncmp(buffer, "NICK", 4) == 0)
 	{
-		//std::cout << "NICK" << std::endl;
 		buffer[rc - 2] = '\0';
 		newuser->nickname = strdup(buffer + 5);
 		rc = read(fd, buffer, BUFFSIZE);
 		buffer[rc] = '\0';
+		read_log(fd, buffer, this);
 	}
 	if (strncmp(buffer, "USER", 4) == 0)
 	{
-		//std::cout << "USER" << std::endl;
 		while (buffer[i] != ' ')
 			i++;
 		buffer[i] = '\0';
@@ -117,8 +119,9 @@ void	Server::newUser(int & fd)
 	this->fds[current_size].events = POLLIN;
 
 	std::string message = ":127.0.0.1 001 " + newuser->nickname + " :Welcome to the ft_irc network, " + newuser->nickname + "\r\n";
-	std::cout << "message : " << message << std::endl;
 	send(fd, message.c_str(), message.length(), 0);
+	send_log(fd, message.c_str(), this);
+	std::cout << YELLOW << "New user " << newuser->nickname << " succesfully registered with id " << fd << "." << RESET << std::endl;
 }
 
 Server::~Server()

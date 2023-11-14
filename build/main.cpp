@@ -42,7 +42,7 @@ int main(int argc, char const* argv[])
 
 	while (1)
 	{
-		std::cout << YELLOW << "[STATUS] : Waiting incoming connection ( poll() )..." << RESET << std::endl;
+		std::cout << YELLOW << "Waiting incoming connection ( poll() )..." << RESET << std::endl;
 		rc = poll(&(server->fds[0]), fdsId, -1);
 		server->current_size = fdsId;
 		for (int i = 0; i < server->current_size; i++)
@@ -61,14 +61,14 @@ int main(int argc, char const* argv[])
 						//	delete server;
 						try
 						{
+							std::cout << YELLOW << "New user connected with id " << newSd << "." << RESET << std::endl;
 							server->newUser(newSd);
-							std::cout << "New user connected with id " << newSd << std::endl;
 							fdsId++;
 						}
 						catch (const std::exception& e)
 						{
-							std::cerr << "[ERROR] : Error during user creation : " << std::endl;
-							std::cerr <<  e.what() << std::endl;
+							std::cerr << RED << "Error during user creation : " << std::endl;
+							std::cerr <<  e.what() << RESET << std::endl;
 						}
 					}
 				}
@@ -79,12 +79,15 @@ int main(int argc, char const* argv[])
 			{
 				close_conn = FALSE;
 				rc = recv(server->fds[i].fd, buffer, sizeof(buffer), 0);
-				/*if (rc == 0)
+				if (rc == 0)
 				{
-					close(server->getUserByFd(server->fds[i].fd)->getFd());
+					std::cout << "User disconnected with id " << server->fds[i].fd << std::endl;
+					close(server->fds[i].fd);
+					server->fds[i].fd = -1;
 					close_conn = TRUE;
-				}*/
+				}
 				buffer[rc] = '\0';
+				read_log(server->fds[i].fd, buffer, server);
 				interpretor(buffer, server->fds[i].fd, server);
 				if (close_conn)
 				{

@@ -26,7 +26,7 @@ void	commands(char *message, User *user, Server *server)
 {
 	if (strncmp(message, "JOIN", 4) == 0)
 	{
-		std::cout << "JOIN command" << std::endl;
+		std::cout << COMMAND << "JOIN" << std::endl;
 		irc_join(message, user, server);
 
 		std::string rpl_list = "CHANNEL LIST ";
@@ -39,19 +39,25 @@ void	commands(char *message, User *user, Server *server)
 	}
 	else if (strncmp(message, "PRIVMSG", 7) == 0)
 	{
-		std::cout << "PRIVMSG command" << std::endl;
+		std::cout << COMMAND << "PRIVMSG" << std::endl;
 		irc_privmsg(message, user, server);
 	}
 	else if (strncmp(message, "PING", 4) == 0)
 	{
-		std::cout << "PING command" << std::endl;
+		std::cout << COMMAND << "PING" << std::endl;
 		std::string rpl_pong = "PONG " + std::string(message + 5) + "\r\n";
 		send(user->fd, rpl_pong.c_str(), rpl_pong.length(), 0);
+		send_log(user->fd, rpl_pong.c_str(), server);
 	}
 	else if (strncmp(message , "PART", 4) == 0)
 	{
-		std::cout << "PART command" << std::endl;
+		std::cout << COMMAND << "PART" << std::endl;
 		irc_part(message, user, server);
+	}
+	else if (strncmp(message , "MODE", 4) == 0)
+	{
+		std::cout << COMMAND << "MODE" << std::endl;
+		irc_mode(message, user, server);
 	}
 	else
 		send(user->fd, "Command not found", 17, 0);
@@ -59,7 +65,6 @@ void	commands(char *message, User *user, Server *server)
 
 void	interpretor(char *message, int fd, Server * server)
 {
-	std::cout << "Message from " << fd << " : " << message << std::endl;
 	User *user = findUser(fd, server);
 	if (user == NULL)
 	{
@@ -67,10 +72,5 @@ void	interpretor(char *message, int fd, Server * server)
 		return ;
 	}
 	if (message[0] >= 'A' && message[0] <= 'Z')
-	{
-		std::cout << "Command" << std::endl;
 		commands(message, user, server);
-	}
-	else
-		std::cout << "Message from " << user->nickname << " : " << message << std::endl;
 }
