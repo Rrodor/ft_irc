@@ -6,7 +6,7 @@
 /*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/10 11:54:12 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/13 20:03:14 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/11/14 16:04:13 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,31 +85,38 @@ void	irc_privmsg(char *message, User *user, Server *server)
 	std::cout << "DEST: |" << dest << "|" << std::endl;
 	message = message + i + 1;
 	std::cout << "PRIVMSG: |" << message << "|" << std::endl;
-	for (std::vector<Channel *>::const_iterator it = server->channels.begin(); it != server->channels.end(); it++)
+	if (dest[0] == '#')
 	{
-		if (dest == (*it)->name)
+		dest = dest.substr(1, dest.length());
+		for (std::vector<Channel *>::const_iterator it = server->channels.begin(); it != server->channels.end(); it++)
 		{
-			std::string rpl_privmsg = ":" + user->nickname + " PRIVMSG " + (*it)->name + " :" + message + "\r\n";
-			for (std::vector<User *>::const_iterator it2 = (*it)->users.begin(); it2 != (*it)->users.end(); it2++)
+			if (dest == (*it)->name)
 			{
-				if ((*it2)->fd != user->fd)
-					send((*it2)->fd, rpl_privmsg.c_str(), rpl_privmsg.length(), 0);
+				std::string rpl_privmsg = ":" + user->nickname + " PRIVMSG #" + (*it)->name + " :" + message + "\r\n";
+				for (std::vector<User *>::const_iterator it2 = (*it)->users.begin(); it2 != (*it)->users.end(); it2++)
+				{
+					if ((*it2)->fd != user->fd)
+						send((*it2)->fd, rpl_privmsg.c_str(), rpl_privmsg.length(), 0);
+				}
+				for (std::vector<User *>::const_iterator it3 = (*it)->operators.begin(); it3 != (*it)->operators.end(); it3++)
+				{
+					if ((*it3)->fd != user->fd)
+						send((*it3)->fd, rpl_privmsg.c_str(), rpl_privmsg.length(), 0);
+				}
+				return ;
 			}
-			for (std::vector<User *>::const_iterator it3 = (*it)->operators.begin(); it3 != (*it)->operators.end(); it3++)
-			{
-				if ((*it3)->fd != user->fd)
-					send((*it3)->fd, rpl_privmsg.c_str(), rpl_privmsg.length(), 0);
-			}
-			return ;
 		}
 	}
-	for (std::vector<User *>::const_iterator it = server->users.begin(); it != server->users.end(); it++)
+	else
 	{
-		if (dest == (*it)->nickname)
+		for (std::vector<User *>::const_iterator it = server->users.begin(); it != server->users.end(); it++)
 		{
-			std::string rpl_privmsg = ":" + user->nickname + " PRIVMSG " + (*it)->nickname + " :" + message + "\r\n";
-			send((*it)->fd, rpl_privmsg.c_str(), rpl_privmsg.length(), 0);
-			return ;
+			if (dest == (*it)->nickname)
+			{
+				std::string rpl_privmsg = ":" + user->nickname + " PRIVMSG " + (*it)->nickname + " :" + message + "\r\n";
+				send((*it)->fd, rpl_privmsg.c_str(), rpl_privmsg.length(), 0);
+				return ;
+			}
 		}
 	}
 }
