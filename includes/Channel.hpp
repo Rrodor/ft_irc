@@ -24,6 +24,7 @@ class Channel
 		std::vector<User *>		operators;
 
 		bool	isInChannel(User *user);
+		bool	isOpInChannel(User *user);
 
 		Channel(std::string name);
 		~Channel();

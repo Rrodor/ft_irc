@@ -37,3 +37,20 @@ bool	Channel::isInChannel(User *user)
 	}
 	return false;
 }
+
+bool	Channel::isOpInChannel(User *user)
+{
+	if (!user)
+		return false;
+
+	std::vector<User *>::iterator		it = this->operators.begin();
+	std::vector<User *>::iterator		ite = this->operators.end();
+
+	while (it != ite)
+	{
+		if (user == *it)
+			return true;
+		it++;
+	}
+	return false;
+}

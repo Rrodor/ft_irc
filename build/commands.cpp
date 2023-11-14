@@ -169,7 +169,48 @@ void	irc_names(Channel *channel, User *user, Server *server)
 
 void	irc_quit(char *message, User *user, Server *server)
 {
+	message = message + 6;
+	message = strtok(message, "\r\n");
+	std::string rpl_quit = ":" + user->nickname + " QUIT:Quit: " + message + "\r\n";
 
+	std::vector<Channel *>::iterator	it = server->channels.begin();
+	std::vector<Channel *>::iterator	ite = server->channels.end();
+	
+	std::vector<User *>::iterator		it2;
+	std::vector<User *>::iterator		it3;
+	while (it != ite)
+	{
+		if ((*it)->isInChannel(user) || (*it)->isOpInChannel(user))
+		{
+			it2 = (*it)->users.begin();
+			while (it2 != (*it)->users.end())
+			{
+				if (user != *it2)
+					send((*it2)->fd, rpl_quit.c_str(), rpl_quit.length(), 0);
+				it2++;
+			}
+			it2 = (*it)->operators.begin();
+			while (it2 != (*it)->operators.end())
+			{
+				if (user != *it2)
+					send((*it2)->fd, rpl_quit.c_str(), rpl_quit.length(), 0);
+				it2++;
+			}
+		}
+		it++;
+	}
+
+	std::vector<struct pollfd>::iterator	it4 = server->fds.begin();
+	std::vector<struct pollfd>::iterator	it4e = server->fds.end();
+	while (it4 != it4e)
+	{
+		if ((*it4).fd == user->fd)
+		{
+			close((*it4).fd);
+			(*it4).fd = -1;
+		}
+		it4++;
+	}
 }
 
 
