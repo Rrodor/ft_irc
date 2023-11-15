@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   interpretor.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
+/*   By: cparras <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:21:37 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/13 16:19:14 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/11/15 14:53:49 by cparras          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,6 +68,11 @@ void	commands(char *message, User *user, Server *server)
 	{
 		std::cout << COMMAND << "NICK" << std::endl;
 		irc_nick(message, user, server);
+	}
+	else if (strncmp(message, "TOPIC", 5) == 0)
+	{
+		std::cout << COMMAND << "TOPIC" << std::endl;
+		irc_topic(message, user, server);
 	}
 	else
 		send(user->fd, "Command not found", 17, 0);

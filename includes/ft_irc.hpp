@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_irc.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
+/*   By: cparras <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 14:04:04 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/13 20:02:52 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/11/15 14:54:58 by cparras          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,6 +81,7 @@ void	irc_names(Channel *channel, User *user, Server *server);
 void	irc_quit(char *message, User *user, Server *server);
 void	irc_nick(char *message, User *user, Server *server);
 void	irc_mode(char *message, User *user, Server *server);
+void	irc_topic(char *message, User *user, Server *server);
 void	send_log(int & fd, const char * message, Server * server);
 void	read_log(int & fd, char * buffer, Server * server);
 
