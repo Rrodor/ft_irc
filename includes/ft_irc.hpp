@@ -6,7 +6,7 @@
 /*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 14:04:04 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/15 14:02:27 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/15 14:40:35 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,10 @@
 #define MAGENTA "\033[35m[COMMAND]"      /* Magenta */
 #define CYAN    "\033[36m[RCV_BUFFER]"      /* Cyan */
 #define WHITE   "\033[37m"      /* White */
+#define DIVIDER "\033[33m------------------------------------------------------------"
+
 #define PRIVMSG	"\033[33m[COMMAND][PRIVMSG] > "
+#define JOIN	"\033[33m[COMMAND][JOIN]"
 
 #define BUFFSIZE	1024
 #define TRUE		1

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
+/*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 14:03:01 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/11 18:47:18 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/11/15 14:35:20 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,6 +95,7 @@ int main(int argc, char const* argv[])
 					server->fds[i].fd = -1;
 				}
 			}
+			std::cout << DIVIDER << RESET << std::endl;
 		}
 	}
 	std::cout << "END OF PROGRAM" << std::endl;

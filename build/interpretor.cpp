@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   interpretor.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
+/*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:21:37 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/13 16:19:14 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/11/15 14:34:23 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,14 +28,6 @@ void	commands(char *message, User *user, Server *server)
 	{
 		std::cout << COMMAND << "JOIN" << std::endl;
 		irc_join(message, user, server);
-
-		std::string rpl_list = "CHANNEL LIST ";
-		for (std::vector<Channel *>::iterator it = server->channels.begin(); it != server->channels.end(); ++it)
-		{
-			rpl_list += "|" + (*it)->name + "|";
-		}
-		rpl_list += "\r\n";
-		std::cout << "list " << rpl_list << std::endl;
 	}
 	else if (strncmp(message, "PRIVMSG", 7) == 0)
 	{
