@@ -6,7 +6,7 @@
 /*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/10 11:54:12 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/14 16:04:13 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/11/15 14:09:46 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -183,7 +183,7 @@ void	irc_quit(char *message, User *user, Server *server)
 
 	std::vector<Channel *>::iterator	it = server->channels.begin();
 	std::vector<Channel *>::iterator	ite = server->channels.end();
-	
+
 	std::vector<User *>::iterator		it2;
 	while (it != ite)
 	{
@@ -268,7 +268,7 @@ void	send_log(int & fd, const char * message, Server * server)
 	std::vector<User *>::iterator	it = server->users.begin();
 	std::vector<User *>::iterator	ite = server->users.end();
 	std::string						name;
-	char *							string = (char *)message;
+	char *							string = (char *)strdup(message);
 
 	string = strtok(string, "\r\n");
 	while (it != ite && name.empty())

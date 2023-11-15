@@ -6,7 +6,7 @@
 /*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 16:24:05 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/11 18:47:53 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/11/15 14:02:03 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,8 @@ int		Server::getServerSocket() const
 	return this->_serverSocket;
 }
 
-void	Server::_initServer() {
+void	Server::_initServer()
+{
 	int	opt = 1;
 	int	addrlen = sizeof(this->_adress);
 
