@@ -96,12 +96,18 @@ void	irc_privmsg(char *message, User *user, Server *server)
 				for (std::vector<User *>::const_iterator it2 = (*it)->users.begin(); it2 != (*it)->users.end(); it2++)
 				{
 					if ((*it2)->fd != user->fd)
+					{
 						send((*it2)->fd, rpl_privmsg.c_str(), rpl_privmsg.length(), 0);
+						send_log((*it2)->fd, rpl_privmsg.c_str(), server);
+					}
 				}
 				for (std::vector<User *>::const_iterator it3 = (*it)->operators.begin(); it3 != (*it)->operators.end(); it3++)
 				{
 					if ((*it3)->fd != user->fd)
+					{
 						send((*it3)->fd, rpl_privmsg.c_str(), rpl_privmsg.length(), 0);
+						send_log((*it3)->fd, rpl_privmsg.c_str(), server);
+					}
 				}
 				return ;
 			}
@@ -115,6 +121,7 @@ void	irc_privmsg(char *message, User *user, Server *server)
 			{
 				std::string rpl_privmsg = ":" + user->nickname + " PRIVMSG " + (*it)->nickname + " :" + message + "\r\n";
 				send((*it)->fd, rpl_privmsg.c_str(), rpl_privmsg.length(), 0);
+				send_log((*it)->fd, rpl_privmsg.c_str(), server);
 				return ;
 			}
 		}
@@ -136,6 +143,7 @@ void	irc_part(char *message, User *user, Server *server)
 					(*it)->users.erase(it2);
 					std::string rpl_part = ":" + user->nickname + " PART " + (*it)->name + "\r\n";
 					send(user->fd, rpl_part.c_str(), rpl_part.length(), 0);
+					send_log(user->fd, rpl_part.c_str(), server);
 					if ((*it)->users.size() == 0)
 					{
 						server->channels.erase(it);
@@ -159,25 +167,24 @@ void	irc_names(Channel *channel, User *user, Server *server)
 	{
 		rpl_names += (*it)->nickname + " ";
 	}
-	std::cout << rpl_names << std::endl;
 	rpl_names += "\r\n";
 	send(user->fd, rpl_names.c_str(), rpl_names.length(), 0);
+	send_log(user->fd, rpl_names.c_str(), server);
 	std::string rpl_endnames = ":127.0.0.1 366 " + user->nickname + " #" + channel->name + " :End of /NAMES list.\r\n";
 	send(user->fd, rpl_endnames.c_str(), rpl_endnames.length(), 0);
-	std::cout << rpl_endnames << std::endl;
+	send_log(user->fd, rpl_endnames.c_str(), server);
 }
 
 void	irc_quit(char *message, User *user, Server *server)
 {
 	message = message + 6;
 	message = strtok(message, "\r\n");
-	std::string rpl_quit = ":" + user->nickname + " QUIT:Quit: " + message + "\r\n";
+	std::string rpl_quit = ":" + user->nickname + " QUIT :Quit: " + message + "\r\n";
 
 	std::vector<Channel *>::iterator	it = server->channels.begin();
 	std::vector<Channel *>::iterator	ite = server->channels.end();
 	
 	std::vector<User *>::iterator		it2;
-	std::vector<User *>::iterator		it3;
 	while (it != ite)
 	{
 		if ((*it)->isInChannel(user) || (*it)->isOpInChannel(user))
@@ -186,14 +193,20 @@ void	irc_quit(char *message, User *user, Server *server)
 			while (it2 != (*it)->users.end())
 			{
 				if (user != *it2)
+				{
 					send((*it2)->fd, rpl_quit.c_str(), rpl_quit.length(), 0);
+					send_log((*it2)->fd, rpl_quit.c_str(), server);
+				}
 				it2++;
 			}
 			it2 = (*it)->operators.begin();
 			while (it2 != (*it)->operators.end())
 			{
 				if (user != *it2)
+				{
 					send((*it2)->fd, rpl_quit.c_str(), rpl_quit.length(), 0);
+					send_log((*it2)->fd, rpl_quit.c_str(), server);
+				}
 				it2++;
 			}
 		}
@@ -220,19 +233,33 @@ void	irc_nick(char *message, User *user, Server *server)
 	message = strtok(message, "\r\n");
 	std::string	oldNick = user->nickname;
 	user->nickname = message;
-	for (std::vector<Channel *>::iterator it = server->channels.begin(); it != server->channels.end(); ++it)
+	std::string rpl_nick = ":" + oldNick + " NICK " + message + "\r\n";
+
+	std::vector<Channel *>::iterator	it = server->channels.begin();
+	std::vector<Channel *>::iterator	ite = server->channels.end();
+
+	std::vector<User *>::iterator		it2;
+
+	while (it != ite)
 	{
-		if ((*it)->isInChannel(user))
+		if ((*it)->isInChannel(user) || (*it)->isOpInChannel(user))
 		{
-			for (std::vector<User *>::iterator itb = (*it)->users.begin(); itb != (*it)->users.end(); ++itb)
+			it2 = (*it)->users.begin();
+			while (it2 != (*it)->users.end())
 			{
-				// if (user != *itb)
-				{
-					std::string rpl_nick = ":" + oldNick + " NICK " + message + "\r\n";
-					send((*itb)->fd, rpl_nick.c_str(), rpl_nick.length(), 0);
-				}
+				send((*it2)->fd, rpl_nick.c_str(), rpl_nick.length(), 0);
+				send_log((*it2)->fd, rpl_nick.c_str(), server);
+				it2++;
+			}
+			it2 = (*it)->operators.begin();
+			while (it2 != (*it)->operators.end())
+			{
+				send((*it2)->fd, rpl_nick.c_str(), rpl_nick.length(), 0);
+				send_log((*it2)->fd, rpl_nick.c_str(), server);
+				it2++;
 			}
 		}
+		it++;
 	}
 }
 
@@ -284,4 +311,5 @@ void	irc_mode(char *message, User *user, Server *server)
 	message = message + 6;
 	std::string rpl_mode = ":127.0.0.1 #" + user->nickname + " #" + message + "\r\n";
 	send(user->fd, rpl_mode.c_str(), rpl_mode.length(), 0);
+	send_log(user->fd, rpl_mode.c_str(), server);
 }

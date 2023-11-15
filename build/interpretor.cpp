@@ -64,6 +64,11 @@ void	commands(char *message, User *user, Server *server)
 		std::cout << COMMAND << "QUIT" << std::endl;
 		irc_quit(message, user, server);
 	}
+	else if (strncmp(message , "NICK", 4) == 0)
+	{
+		std::cout << COMMAND << "NICK" << std::endl;
+		irc_nick(message, user, server);
+	}
 	else
 		send(user->fd, "Command not found", 17, 0);
 }
