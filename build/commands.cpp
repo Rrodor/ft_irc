@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
+/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/10 11:54:12 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/15 14:47:44 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/15 19:05:57 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -153,6 +153,7 @@ void	irc_part(char *message, User *user, Server *server)
 		{
 			for (std::vector<User *>::iterator it2 = (*it)->users.begin(); it2 != (*it)->users.end(); ++it2)
 			{
+				std::cout << "user->name = " << user->nickname << std::endl;
 				if ((*it2)->fd == user->fd)
 				{
 					(*it)->users.erase(it2);
@@ -164,7 +165,14 @@ void	irc_part(char *message, User *user, Server *server)
 						server->channels.erase(it);
 						delete (*it);
 					}
-					return ;
+				}
+				else
+				{
+					exit(0);
+					std::string rpl_part2 = ":" + user->nickname + " PART " + (*it)->name + "\r\n";
+					std::cout << "rpl part" << rpl_part2 << std::endl;
+					send((*it2)->fd, rpl_part2.c_str(), rpl_part2.length(), 0);
+					//send_log((*it2)->fd, rpl_part.c_str(), server);
 				}
 			}
 		}
@@ -281,7 +289,7 @@ void	irc_nick(char *message, User *user, Server *server)
 void	irc_mode(char *message, User *user, Server *server)
 {
 	message = message + 6;
-	std::string rpl_mode = ":127.0.0.1 #" + user->nickname + " #" + message + "\r\n";
-	send(user->fd, rpl_mode.c_str(), rpl_mode.length(), 0);
+	std::string rpl_mode = ":127.0.0.1 " + user->nickname + " #" + message + "\r\n";
+	//send(user->fd, rpl_mode.c_str(), rpl_mode.length(), 0);
 	send_log(user->fd, rpl_mode.c_str(), server);
 }
