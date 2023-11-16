@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_irc.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
+/*   By: cparras <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 14:04:04 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/16 12:27:01 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/16 16:56:56 by cparras          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,8 @@
 #include <csignal>
 #include <exception>
 #include <stdexcept>
+#include <ctime>
+#include <sstream>
 
 #define RESET   "\033[0m"
 #define BLACK   "\033[30m"      /* Black */

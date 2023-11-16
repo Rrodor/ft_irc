@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
+/*   By: cparras <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:36:08 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/16 11:09:17 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/16 17:02:00 by cparras          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,11 @@
 Channel::Channel(std::string name)
 {
 	this->name = name;
+	this->topic = "";
+	std::time_t t = std::time(0);
+	std::ostringstream oss;
+	oss << t;
+	this->lastTopicUpdate = oss.str();
 }
 
 Channel::~Channel()
