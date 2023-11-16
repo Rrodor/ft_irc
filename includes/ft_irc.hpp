@@ -6,7 +6,7 @@
 /*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 14:04:04 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/16 15:51:01 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/16 16:41:02 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,8 @@
 #include <csignal>
 #include <exception>
 #include <stdexcept>
+#include <ctime>
+#include <sstream>
 
 #define RESET   "\033[0m"
 #define BLACK   "\033[30m"      /* Black */

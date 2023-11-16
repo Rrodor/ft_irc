@@ -6,7 +6,7 @@
 /*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:36:08 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/16 15:54:18 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/16 16:38:53 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,11 @@
 Channel::Channel(std::string name)
 {
 	this->name = name;
+	this->topic = "";
+	std::time_t t = std::time(0);
+	std::ostringstream oss;
+	oss << t;
+	this->lastTopicUpdate = oss.str();
 }
 
 Channel::~Channel()

@@ -6,7 +6,7 @@
 /*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/10 11:54:12 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/16 16:10:35 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/16 16:40:03 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -204,23 +204,33 @@ void	irc_topic(char *message, User *user, Server *server)
 	std::vector<Channel *>::iterator	it = server->channels.begin();
 	std::vector<Channel *>::iterator	ite = server->channels.end();
 	std::string targTopic;
+	std::string targTime;
+	std::time_t t = std::time(0);
+	std::ostringstream oss;
+	oss << t;
+	std::string time_str = oss.str();
 	
-
-	std::cout << "[" << message << "]" << std::endl;
 	if (strchr(message, ':') == 0)
 	{
 		while (it != ite)
 		{	
 			if ((*it)->name == message + 7)
 			{
-				targTopic = (*it)->topic;
+				if ((*it)->topic == "")
+					targTopic = "No topic is set.";
+				else
+					targTopic = (*it)->topic;
+				targTime = (*it)->lastTopicUpdate;
 			}
 			it++;
 		}
 		message = message + 6;
 		std::string rpl_topic = ":127.0.0.1 332 " + user->nickname + " " + message + " :" + targTopic + "\r\n";
+		std::string rpl_time = ":127.0.0.1 333 " + user->nickname + " " + message + " " + user->nickname + " " + targTime + "\r\n";
 		send(user->fd, rpl_topic.c_str(), rpl_topic.length(), 0);
 		send_log(user->fd, rpl_topic.c_str(), server);
+		send(user->fd, rpl_time.c_str(), rpl_time.length(), 0);
+		send_log(user->fd, rpl_time.c_str(), server);
 		return ;
 	}
 	for (int i = 0; i < strlen(message); i++)
@@ -231,29 +241,36 @@ void	irc_topic(char *message, User *user, Server *server)
 			break ;
 		}
 	}
-	std::cout << "[" << message << "]" << std::endl;
 	char *targetChannel = strtok(message, " 	");
 	for (std::vector<Channel *>::iterator it = server->channels.begin(); it != server->channels.end(); ++it)
 	{
 		if ((*it)->name == targetChannel)
 		{
-			if (!(*it)->isOpInChannel(user))
+			if (!(*it)->isInChannel(user) && !(*it)->isOpInChannel(user))
 			{
-				send(user->fd, "481 :Permission Denied- You're not an IRC operator\r\n", 52, 0);
+				std::string rpl_topic = ":127.0.0.1 442 " + user->nickname + " #" + targetChannel + " :You're not on that channel\r\n";
+				send(user->fd, rpl_topic.c_str(), rpl_topic.length(), 0);
+				send_log(user->fd, rpl_topic.c_str(), server);
+				return ;
+			}
+			else if (!(*it)->isOpInChannel(user))
+			{
+				std::string rpl_not_op = ":127.0.0.1 442 " + user->nickname + " #" + targetChannel + " :You're not channel operator\r\n";
+				send(user->fd, rpl_not_op.c_str(), rpl_not_op.length(), 0);
+				send_log(user->fd, rpl_not_op.c_str(), server);
 				return ;
 			}
 		}
 	}
-	std::cout << targetChannel << std::endl;
 	char *topic = strtok(NULL, "\r\n");
 	if (topic == NULL)
 		topic = strdup("");
-	std::cout << topic << std::endl;
 	for (std::vector<Channel *>::iterator it = server->channels.begin(); it != server->channels.end(); ++it)
 	{
 		if ((*it)->name == targetChannel)
 		{
 			(*it)->topic = topic;
+			(*it)->lastTopicUpdate = time_str;
 			std::string rpl_topic = ":" + user->nickname + " TOPIC #" + (*it)->name + " :" + topic + "\r\n";
 		}
 	}
