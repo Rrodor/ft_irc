@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_irc.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cparras <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 14:04:04 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/15 14:54:58 by cparras          ###   ########.fr       */
+/*   Updated: 2023/11/16 12:27:01 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,19 +44,15 @@
 #define RED     "\033[31m[ERROR] : "      /* Red */
 #define GREEN   "\033[32m[SND_BUFFER]"      /* Green */
 #define YELLOW  "\033[33m[STATUS] : "      /* Yellow */
-#define COMMAND "\033[33m[COMMAND] "
+#define COMMAND "\033[33m[COMMAND] > "
 #define BLUE    "\033[34m"      /* Blue */
 #define MAGENTA "\033[35m[COMMAND]"      /* Magenta */
 #define CYAN    "\033[36m[RCV_BUFFER]"      /* Cyan */
 #define WHITE   "\033[37m"      /* White */
-#define BOLDBLACK   "\033[1m\033[30m"      /* Bold Black */
-#define BOLDRED     "\033[1m\033[31m"      /* Bold Red */
-#define BOLDGREEN   "\033[1m\033[32m"      /* Bold Green */
-#define BOLDYELLOW  "\033[1m\033[33m"      /* Bold Yellow */
-#define BOLDBLUE    "\033[1m\033[34m"      /* Bold Blue */
-#define BOLDMAGENTA "\033[1m\033[35m"      /* Bold Magenta */
-#define BOLDCYAN    "\033[1m\033[36m"      /* Bold Cyan */
-#define BOLDWHITE   "\033[1m\033[37m"      /* Bold White */
+#define DIVIDER "\033[33m------------------------------------------------------------"
+
+#define PRIVMSG	"\033[33m[COMMAND][PRIVMSG] > "
+#define JOIN	"\033[33m[COMMAND][JOIN]"
 
 #define BUFFSIZE	1024
 #define TRUE		1
@@ -82,6 +78,8 @@ void	irc_quit(char *message, User *user, Server *server);
 void	irc_nick(char *message, User *user, Server *server);
 void	irc_mode(char *message, User *user, Server *server);
 void	irc_topic(char *message, User *user, Server *server);
+
+//logs.cpp
 void	send_log(int & fd, const char * message, Server * server);
 void	read_log(int & fd, char * buffer, Server * server);
 

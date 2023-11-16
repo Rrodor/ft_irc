@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
+/*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 16:24:05 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/15 14:02:03 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/11/16 10:38:58 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,4 +133,15 @@ Server::~Server()
 const char* Server::WrongPasswordException::what() const throw()
 {
 	return "Wrong password.";
+}
+
+void		Server::printServerChannels(std::string name) const
+{
+	std::string	clist = JOIN;
+	clist += "[#" + name + "]" + "[CHANNELS_LIST] > ";
+	for (std::vector<Channel *>::const_iterator it = this->channels.begin(); it != this->channels.end(); ++it)
+	{
+		clist += "|" + (*it)->name + "|";
+	}
+	std::cout << clist << std::endl;
 }

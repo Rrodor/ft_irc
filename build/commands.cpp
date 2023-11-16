@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cparras <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/10 11:54:12 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/15 19:10:03 by cparras          ###   ########.fr       */
+/*   Updated: 2023/11/16 12:26:18 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,26 +25,15 @@ void	irc_join(char *message, User *user, Server *server)
 			for (std::vector<User *>::iterator it2 = (*it)->users.begin(); it2 != (*it)->users.end(); ++it2)
 			{
 				send((*it2)->fd, rpl_join.c_str(), rpl_join.length(), 0);
+				send_log((*it2)->fd, rpl_join.c_str(), server);
 			}
 			for (std::vector<User *>::iterator it2 = (*it)->operators.begin(); it2 != (*it)->operators.end(); ++it2)
 			{
 				send((*it2)->fd, rpl_join.c_str(), rpl_join.length(), 0);
+				send_log((*it2)->fd, rpl_join.c_str(), server);
 			}
-			std::string ulist = "USER LIST ";
-			for (std::vector<User *>::iterator it2 = (*it)->users.begin(); it2 != (*it)->users.end(); ++it2)
-			{
-				ulist += "|" + (*it2)->nickname + "| ";
-			}
-			ulist += "\n";
-			std::cout << ulist << std::endl;
-			std::string olist = "OPERATOR LIST ";
-			for (std::vector<User *>::iterator it3 = (*it)->operators.begin(); it3 != (*it)->operators.end(); ++it3)
-			{
-				olist += "|" + (*it3)->nickname + "| ";
-			}
-			olist += "\n";
-			std::cout << olist << std::endl;
-
+			(*it)->printChannelUsers();
+			server->printServerChannels((*it)->name);
 			irc_names(*it, user, server);
 			return ;
 		}
@@ -52,24 +41,13 @@ void	irc_join(char *message, User *user, Server *server)
 	Channel *channel = new Channel(message);
 	channel->operators.push_back(user);
 	server->channels.push_back(channel);
+	
 	std::string rpl_join = ":" + user->nickname + " JOIN #" + channel->name + "\r\n";
 	send(user->fd, rpl_join.c_str(), rpl_join.length(), 0);
+	send_log(user->fd, rpl_join.c_str(), server);
 
-	std::string ulist = "USER LIST ";
-	for (std::vector<User *>::iterator it2 = channel->users.begin(); it2 != channel->users.end(); ++it2)
-	{
-		ulist += "|" + (*it2)->nickname + "| ";
-	}
-	ulist += "\n";
-	std::cout << ulist << std::endl;
-	std::string olist = "OPERATOR LIST ";
-	for (std::vector<User *>::iterator it3 = channel->operators.begin(); it3 != channel->operators.end(); ++it3)
-	{
-		olist += "|" + (*it3)->nickname + "| ";
-	}
-	olist += "\n";
-	std::cout << olist << std::endl;
-
+	channel->printChannelUsers();
+	server->printServerChannels(channel->name);
 	irc_names(channel, user, server);
 }
 
@@ -82,9 +60,9 @@ void	irc_privmsg(char *message, User *user, Server *server)
 		i++;
 	std::string dest = message;
 	dest = dest.substr(0, i - 1);
-	std::cout << "DEST: |" << dest << "|" << std::endl;
+	std::cout << PRIVMSG << "sent to " << dest << std::endl;
 	message = message + i + 1;
-	std::cout << "PRIVMSG: |" << message << "|" << std::endl;
+	std::cout << PRIVMSG << "\"" << message << "\"" << RESET << std::endl;
 	if (dest[0] == '#')
 	{
 		dest = dest.substr(1, dest.length());
@@ -342,49 +320,6 @@ void	irc_nick(char *message, User *user, Server *server)
 		}
 		it++;
 	}
-}
-
-void	send_log(int & fd, const char * message, Server * server)
-{
-	std::vector<User *>::iterator	it = server->users.begin();
-	std::vector<User *>::iterator	ite = server->users.end();
-	std::string						name;
-	char *							string = (char *)strdup(message);
-
-	string = strtok(string, "\r\n");
-	while (it != ite && name.empty())
-	{
-		if (fd == (*it)->fd)
-			name = (*it)->nickname;
-		it++;
-	}
-	std::cout << GREEN;
-	if (name.empty())
-		std::cout << "[" << fd << " - new user] : ";
-	else
-		std::cout << "[" << fd << " - " << name << "] : ";
-	std::cout << string << RESET << std::endl;
-}
-
-void	read_log(int & fd, char * buffer, Server * server)
-{
-	std::vector<User *>::iterator	it = server->users.begin();
-	std::vector<User *>::iterator	ite = server->users.end();
-	std::string						name;
-
-	buffer = strtok(buffer, "\r\n");
-	while (it != ite && name.empty())
-	{
-		if (fd == (*it)->fd)
-			name = (*it)->nickname;
-		it++;
-	}
-	std::cout << CYAN;
-	if (name.empty())
-		std::cout << "[" << fd << " - new user] : ";
-	else
-		std::cout << "[" << fd << " - " << name << "] : ";
-	std::cout << buffer << RESET << std::endl;
 }
 
 void	irc_mode(char *message, User *user, Server *server)
