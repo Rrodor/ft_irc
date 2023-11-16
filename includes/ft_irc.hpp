@@ -6,7 +6,7 @@
 /*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 14:04:04 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/16 12:27:01 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/16 15:51:01 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,7 @@
 
 #define PRIVMSG	"\033[33m[COMMAND][PRIVMSG] > "
 #define JOIN	"\033[33m[COMMAND][JOIN]"
+#define QUIT	"\033[33m[COMMAND][QUIT] > "
 
 #define BUFFSIZE	1024
 #define TRUE		1

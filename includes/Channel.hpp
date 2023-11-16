@@ -6,7 +6,7 @@
 /*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:34:14 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/16 11:04:18 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/16 15:46:32 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,8 @@ class Channel
 		bool	isOpInChannel(User *user);
 		void	printChannelUsers() const;
 		void	channelSendLoop(std::string message, int & sFd, Server * server, int sendToHim);
-		void	deleteChannelUser(User * user);
+		void	deleteChannelUser(User * user, Server * server);
+		void	allocNewOp(Server * server);
 
 		Channel(std::string name);
 		~Channel();

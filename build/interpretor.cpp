@@ -6,7 +6,7 @@
 /*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:21:37 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/16 12:28:25 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/16 16:11:27 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,15 +25,9 @@ User	*findUser(int fd, Server * server)
 void	commands(char *message, User *user, Server *server)
 {
 	if (strncmp(message, "JOIN", 4) == 0)
-	{
-		std::cout << COMMAND << "JOIN" << std::endl;
 		irc_join(message, user, server);
-	}
 	else if (strncmp(message, "PRIVMSG", 7) == 0)
-	{
-		std::cout << COMMAND << "PRIVMSG" << std::endl;
 		irc_privmsg(message, user, server);
-	}
 	else if (strncmp(message, "PING", 4) == 0)
 	{
 		std::cout << COMMAND << "PING" << std::endl;
@@ -42,25 +36,13 @@ void	commands(char *message, User *user, Server *server)
 		send_log(user->fd, rpl_pong.c_str(), server);
 	}
 	else if (strncmp(message , "PART", 4) == 0)
-	{
-		std::cout << COMMAND << "PART" << std::endl;
 		irc_part(message, user, server);
-	}
 	else if (strncmp(message , "MODE", 4) == 0)
-	{
-		std::cout << COMMAND << "MODE" << std::endl;
 		irc_mode(message, user, server);
-	}
 	else if (strncmp(message , "QUIT", 4) == 0)
-	{
-		std::cout << COMMAND << "QUIT" << std::endl;
 		irc_quit(message, user, server);
-	}
-	else if (strncmp(message , "NICK", 4) == 0)
-	{
-		std::cout << COMMAND << "NICK" << std::endl;
+	else if (strncmp(message , "NICK", 4) == 0)	
 		irc_nick(message, user, server);
-	}
 	else if (strncmp(message, "TOPIC", 5) == 0)
 	{
 		std::cout << COMMAND << "TOPIC" << std::endl;
