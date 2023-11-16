@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_irc.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cparras <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 14:04:04 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/16 16:56:56 by cparras          ###   ########.fr       */
+/*   Updated: 2023/11/16 16:41:02 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,7 @@
 
 #define PRIVMSG	"\033[33m[COMMAND][PRIVMSG] > "
 #define JOIN	"\033[33m[COMMAND][JOIN]"
+#define QUIT	"\033[33m[COMMAND][QUIT] > "
 
 #define BUFFSIZE	1024
 #define TRUE		1
