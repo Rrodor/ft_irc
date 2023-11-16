@@ -6,7 +6,7 @@
 /*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/10 11:54:12 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/16 10:42:53 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/16 12:26:18 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -204,6 +204,87 @@ void	irc_quit(char *message, User *user, Server *server)
 	}
 }
 
+void	irc_topic(char *message, User *user, Server *server)
+{
+	std::vector<Channel *>::iterator	it = server->channels.begin();
+	std::vector<Channel *>::iterator	ite = server->channels.end();
+	std::string targTopic;
+	
+
+	std::cout << "[" << message << "]" << std::endl;
+	if (strchr(message, ':') == 0)
+	{
+		while (it != ite)
+		{	
+			if ((*it)->name == message + 7)
+			{
+				targTopic = (*it)->topic;
+			}
+			it++;
+		}
+		message = message + 6;
+		std::string rpl_topic = ":127.0.0.1 332 " + user->nickname + " " + message + " :" + targTopic + "\r\n";
+		send(user->fd, rpl_topic.c_str(), rpl_topic.length(), 0);
+		send_log(user->fd, rpl_topic.c_str(), server);
+		return ;
+	}
+	for (int i = 0; i < strlen(message); i++)
+	{
+		if (message[i] == ':')
+		{
+			message = strndup(message + i + 1, strlen(message) - i - 1);
+			break ;
+		}
+	}
+	std::cout << "[" << message << "]" << std::endl;
+	char *targetChannel = strtok(message, " 	");
+	for (std::vector<Channel *>::iterator it = server->channels.begin(); it != server->channels.end(); ++it)
+	{
+		if ((*it)->name == targetChannel)
+		{
+			if (!(*it)->isOpInChannel(user))
+			{
+				send(user->fd, "481 :Permission Denied- You're not an IRC operator\r\n", 52, 0);
+				return ;
+			}
+		}
+	}
+	std::cout << targetChannel << std::endl;
+	char *topic = strtok(NULL, "\r\n");
+	if (topic == NULL)
+		topic = strdup("");
+	std::cout << topic << std::endl;
+	for (std::vector<Channel *>::iterator it = server->channels.begin(); it != server->channels.end(); ++it)
+	{
+		if ((*it)->name == targetChannel)
+		{
+			(*it)->topic = topic;
+			std::string rpl_topic = ":" + user->nickname + " TOPIC #" + (*it)->name + " :" + topic + "\r\n";
+		}
+	}
+	std::string rpl_topic = ":" + user->nickname + " TOPIC #" + targetChannel + " :" + topic + "\r\n";
+	while (it != ite)
+	{
+		if ((*it)->name == targetChannel)
+		{
+			std::vector<User *>::iterator	it2 = (*it)->users.begin();
+			while (it2 != (*it)->users.end())
+			{
+				send((*it2)->fd, rpl_topic.c_str(), rpl_topic.length(), 0);
+				send_log((*it2)->fd, rpl_topic.c_str(), server);
+				it2++;
+			}
+			it2 = (*it)->operators.begin();
+			while (it2 != (*it)->operators.end())
+			{
+				send((*it2)->fd, rpl_topic.c_str(), rpl_topic.length(), 0);
+				send_log((*it2)->fd, rpl_topic.c_str(), server);
+				it2++;
+			}
+		}
+		it++;
+	}
+}
 
 void	irc_nick(char *message, User *user, Server *server)
 {

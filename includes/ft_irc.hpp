@@ -6,7 +6,7 @@
 /*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 14:04:04 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/15 14:40:35 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/16 12:27:01 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,6 +77,7 @@ void	irc_names(Channel *channel, User *user, Server *server);
 void	irc_quit(char *message, User *user, Server *server);
 void	irc_nick(char *message, User *user, Server *server);
 void	irc_mode(char *message, User *user, Server *server);
+void	irc_topic(char *message, User *user, Server *server);
 
 //logs.cpp
 void	send_log(int & fd, const char * message, Server * server);
