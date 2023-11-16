@@ -6,7 +6,7 @@
 /*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:21:37 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/15 14:34:23 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/16 12:28:25 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,11 @@ void	commands(char *message, User *user, Server *server)
 	{
 		std::cout << COMMAND << "NICK" << std::endl;
 		irc_nick(message, user, server);
+	}
+	else if (strncmp(message, "TOPIC", 5) == 0)
+	{
+		std::cout << COMMAND << "TOPIC" << std::endl;
+		irc_topic(message, user, server);
 	}
 	else
 		send(user->fd, "Command not found", 17, 0);
