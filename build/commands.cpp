@@ -6,7 +6,7 @@
 /*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/10 11:54:12 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/15 14:47:44 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/16 10:42:53 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,27 +32,8 @@ void	irc_join(char *message, User *user, Server *server)
 				send((*it2)->fd, rpl_join.c_str(), rpl_join.length(), 0);
 				send_log((*it2)->fd, rpl_join.c_str(), server);
 			}
-			std::string ulist = JOIN;
-			ulist += "[#" + (*it)->name + "]" + "[USERS_LIST] > ";
-			for (std::vector<User *>::iterator it2 = (*it)->users.begin(); it2 != (*it)->users.end(); ++it2)
-			{
-				ulist += "|" + (*it2)->nickname + "| ";
-			}
-			std::cout << ulist << std::endl;
-			std::string olist = JOIN;
-			olist += "[#" + (*it)->name + "]" + "[OPERATORS_LIST] > ";
-			for (std::vector<User *>::iterator it3 = (*it)->operators.begin(); it3 != (*it)->operators.end(); ++it3)
-			{
-				olist += "|" + (*it3)->nickname + "| ";
-			}
-			std::cout << olist << std::endl;
-			std::string	clist = JOIN;
-			clist += "[#" + (*it)->name + "]" + "[CHANNELS_LIST] > ";
-			for (std::vector<Channel *>::iterator it = server->channels.begin(); it != server->channels.end(); ++it)
-			{
-				clist += "|" + (*it)->name + "|";
-			}
-			std::cout << clist << std::endl;
+			(*it)->printChannelUsers();
+			server->printServerChannels((*it)->name);
 			irc_names(*it, user, server);
 			return ;
 		}
@@ -60,31 +41,13 @@ void	irc_join(char *message, User *user, Server *server)
 	Channel *channel = new Channel(message);
 	channel->operators.push_back(user);
 	server->channels.push_back(channel);
+	
 	std::string rpl_join = ":" + user->nickname + " JOIN #" + channel->name + "\r\n";
 	send(user->fd, rpl_join.c_str(), rpl_join.length(), 0);
 	send_log(user->fd, rpl_join.c_str(), server);
 
-	std::string ulist = JOIN;
-	ulist += "[#" + channel->name + "]" + "[USERS_LIST] > ";
-	for (std::vector<User *>::iterator it2 = channel->users.begin(); it2 != channel->users.end(); ++it2)
-	{
-		ulist += "|" + (*it2)->nickname + "| ";
-	}
-	std::cout << ulist << std::endl;
-	std::string olist = JOIN;
-	olist += "[#" + channel->name + "]" + "[OPERATORS_LIST] > ";
-	for (std::vector<User *>::iterator it3 = channel->operators.begin(); it3 != channel->operators.end(); ++it3)
-	{
-		olist += "|" + (*it3)->nickname + "| ";
-	}
-	std::cout << olist << std::endl;
-	std::string	clist = JOIN;
-	clist += "[#" + channel->name + "]" + "[CHANNELS_LIST] > ";
-	for (std::vector<Channel *>::iterator it = server->channels.begin(); it != server->channels.end(); ++it)
-	{
-		clist += "|" + (*it)->name + "|";
-	}
-	std::cout << clist << std::endl;
+	channel->printChannelUsers();
+	server->printServerChannels(channel->name);
 	irc_names(channel, user, server);
 }
 
