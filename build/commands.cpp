@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
+/*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/10 11:54:12 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/18 16:35:10 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/11/18 16:13:48 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -215,9 +215,34 @@ void	irc_privmsg(char *message, User *user, Server *server)
 
 void	irc_part(char *message, User *user, Server *server)
 {
+	bool		hasReason = false;
+	std::string	reason;
+
 	std::cout << COMMAND << "PART" << std::endl;
+
 	message = message + 6;
 	message = strtok(message, "\r\n");
+	std::string rpl_part = message;
+	if (rpl_part.find(':') != std::string::npos)
+		hasReason = true;
+	std::string	channelName = rpl_part.substr(0, rpl_part.find(' '));
+	rpl_part.erase(0, rpl_part.find(' ') + 1);
+	std::string	partUser = rpl_part.substr(0, rpl_part.find(' '));
+	if (hasReason == true)
+	{
+		rpl_part.erase(0, rpl_part.find(' ') + 2),
+		rpl_part = ":" + user->nickname + " PART #" + channelName + " :" + rpl_part + "\r\n";
+	}
+	else
+		rpl_part = ":" + user->nickname + " PART #" + channelName + "\r\n";
+	
+	std::vector<Channel *>::iterator	it = server->channels.begin();
+	std::vector<Channel *>::iterator	ite = server->channels.end();
+
+	while (it != ite)
+	{
+		if ((*it)->name == channelName)
+	}
 	for (std::vector<Channel *>::iterator it = server->channels.begin(); it != server->channels.end(); ++it)
 	{
 		if ((*it)->name == message)
@@ -452,7 +477,7 @@ void	irc_kick(char * message, User * user, Server * server)
 	message = message + 5;
 	message = strtok(message, "\r\n");
 	std::string	rpl_kick = message;
-	if (rpl_kick.find(":") != std::string::npos)
+	if (rpl_kick.find(':') != std::string::npos)
 		hasReason = true;
 	std::string channelName = rpl_kick.substr(0, rpl_kick.find(' '));
 	rpl_kick.erase(0, rpl_kick.find(' ') + 1);
