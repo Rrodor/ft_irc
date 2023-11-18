@@ -6,16 +6,106 @@
 /*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/10 11:54:12 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/18 13:35:26 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/18 13:54:04 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/ft_irc.hpp"
 
+void join_part(std::string channel_name, User *user, Server *server)
+{
+	for (std::vector<Channel *>::iterator it = server->channels.begin(); it != server->channels.end();)
+	{
+		if ((*it)->name == channel_name)
+		{
+			for (std::vector<User *>::iterator it2 = (*it)->users.begin(); it2 != (*it)->users.end();)
+			{
+				if ((*it2)->fd == user->fd)
+				{
+					std::string rpl_part = ":" + user->nickname + " PART " + (*it)->name + " :Left all channels\r\n";
+					send(user->fd, rpl_part.c_str(), rpl_part.length(), 0);
+					send_log(user->fd, rpl_part.c_str(), server);
+					it2 = (*it)->users.erase(it2);
+					if ((*it)->users.size() == 0)
+					{
+						it = server->channels.erase(it);
+						delete (*it);
+						return;
+					}
+				}
+				else
+				{
+					++it2;
+				}
+			}
+			for (std::vector<User *>::iterator it2 = (*it)->operators.begin(); it2 != (*it)->operators.end();)
+			{
+				if ((*it2)->fd == user->fd)
+				{
+					std::string rpl_part = ":" + user->nickname + " PART #" + (*it)->name + " :Left all channels\r\n";
+					send(user->fd, rpl_part.c_str(), rpl_part.length(), 0);
+					send_log(user->fd, rpl_part.c_str(), server);
+					it2 = (*it)->operators.erase(it2);
+					if ((*it)->operators.size() == 0)
+					{
+						it = server->channels.erase(it);
+						delete (*it);
+						return;
+					}
+				}
+				else
+				{
+					++it2;
+				}
+			}
+		}
+		else
+		{
+			++it;
+		}
+	}
+}
+
+void	irc_join_cases(char *message, User *user, Server *server)
+{
+	int flag = 0;
+	if (message[0] == '0')
+	{
+		std::vector<Channel *>::iterator	it = server->channels.begin();
+		std::vector<Channel *>::iterator	ite = server->channels.end();
+		while (it != ite)
+		{
+			if ((*it)->isInChannel(user) || (*it)->isOpInChannel(user))
+			{
+				flag = 1;
+				join_part((*it)->name, user, server);
+			}
+			it++;
+		}
+		if (flag == 0 && it == ite)
+		{
+			std::string rpl_not_valid_name = ":127.0.0.1 476 " + user->nickname + " " + message + " :Invalid channel name\r\n";
+			send(user->fd, rpl_not_valid_name.c_str(), rpl_not_valid_name.length(), 0);
+			send_log(user->fd, rpl_not_valid_name.c_str(), server);
+		}
+		return ;
+	}
+	else
+	{
+		std::string rpl_not_valid_name = ":127.0.0.1 476 " + user->nickname + " " + message + " :Invalid channel name\r\n";
+		send(user->fd, rpl_not_valid_name.c_str(), rpl_not_valid_name.length(), 0);
+		send_log(user->fd, rpl_not_valid_name.c_str(), server);
+		return ;
+	}
+}
+
 void	irc_join(char *message, User *user, Server *server)
 {
 	std::cout << COMMAND << "JOIN" << std::endl;
-	message = message + 6;
+	message = message + 5;
+	if (message[0] != '#')
+		return irc_join_cases(message, user, server);
+	message = message + 1;
 	message = strtok(message, "\r\n");
 	for (std::vector<Channel *>::iterator it = server->channels.begin(); it != server->channels.end(); ++it)
 	{
@@ -208,7 +298,6 @@ void	irc_quit(char *message, User *user, Server *server)
 		it4++;
 	}
 	delete user;
-
 }
 
 void	irc_topic(char *message, User *user, Server *server)
