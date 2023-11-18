@@ -6,7 +6,7 @@
 /*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 15:41:33 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/16 10:38:39 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/18 11:31:04 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,9 +30,11 @@ class Server
 		Server(const char * port, std::string password);
 		~Server();
 
-		int		getServerSocket() const;
-		void	newUser(int & fd);
-		void	printServerChannels(std::string name) const;
+		int			getServerSocket() const;
+		std::vector<Channel *>::iterator	getChannelByName(std::string name);
+		
+		void		newUser(int & fd);
+		void		printServerChannels(std::string name) const;
 
 		class WrongPasswordException : public std::exception
 		{

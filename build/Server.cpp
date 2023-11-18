@@ -6,7 +6,7 @@
 /*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 16:24:05 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/16 10:38:58 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/18 11:32:00 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -144,4 +144,20 @@ void		Server::printServerChannels(std::string name) const
 		clist += "|" + (*it)->name + "|";
 	}
 	std::cout << clist << std::endl;
+}
+
+std::vector<Channel *>::iterator	Server::getChannelByName(std::string name)
+{
+	if (name[0] == '#')
+		name.erase(name.begin());
+	std::vector<Channel *>::iterator	it = this->channels.begin();
+	std::vector<Channel *>::iterator	ite = this->channels.end();
+
+	while (it != ite)
+	{
+		if ((*it)->name == name)
+			return it;
+		it++;
+	}
+	return this->channels.end();
 }

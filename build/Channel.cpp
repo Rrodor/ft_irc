@@ -6,7 +6,7 @@
 /*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:36:08 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/16 16:38:53 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/18 12:04:28 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,16 +60,16 @@ bool	Channel::isOpInChannel(User *user)
 	return false;
 }
 
-void	Channel::printChannelUsers() const
+void	Channel::printChannelUsers(std::string logType) const
 {
-	std::string ulist = JOIN;
+	std::string ulist = logType;
 	ulist += "[#" + this->name + "]" + "[USERS_LIST] > ";
 	for (std::vector<User *>::const_iterator it2 = this->users.begin(); it2 != this->users.end(); ++it2)
 	{
 		ulist += "|" + (*it2)->nickname + "| ";
 	}
 	std::cout << ulist << std::endl;
-	std::string olist = JOIN;
+	std::string olist = logType;
 	olist += "[#" + this->name + "]" + "[OPERATORS_LIST] > ";
 	for (std::vector<User *>::const_iterator it3 = this->operators.begin(); it3 != this->operators.end(); ++it3)
 	{
@@ -105,6 +105,40 @@ void	Channel::channelSendLoop(std::string message, int & sFd, Server * server, i
 	}
 }
 
+void	Channel::deleteChannelUser(std::vector<User *>::iterator iterator, Server * server)
+{
+	std::vector<User *>::iterator	it = this->users.begin();
+	std::vector<User *>::iterator	ite = this->users.end();
+	
+	if (this->isOpInChannel((*iterator)))
+	{
+		it = this->operators.begin();
+		ite = this->operators.end();
+	}
+
+	while (it != ite)
+	{
+		if (iterator == it)
+		{
+			if (this->isInChannel((*iterator)))
+			{
+				this->users.erase(it);
+				std::cout << QUIT << "Erasing user " << (*iterator)->nickname << " from #" << this->name << RESET << std::endl;
+			}
+			else if (this->isOpInChannel((*iterator)))
+			{
+				this->operators.erase(it);
+				std::cout << QUIT << "Erasing operator " << (*iterator)->nickname << " from #" << this->name << RESET << std::endl;
+			}
+		}
+		it++;
+	}
+	if (this->operators.empty() && !this->users.empty())
+		this->allocNewOp(server);
+	else if (this->operators.empty() && this->users.empty())	
+		server->channels.erase(server->getChannelByName(this->name));
+}
+
 void	Channel::deleteChannelUser(User * user, Server * server)
 {
 	std::vector<User *>::iterator	it = this->users.begin();
@@ -123,18 +157,23 @@ void	Channel::deleteChannelUser(User * user, Server * server)
 			if (this->isInChannel(user))
 			{
 				this->users.erase(it);
-				std::cout << QUIT << "Erasing user " << user->nickname << " from #" << this->name << RESET << std::endl;
+				std::cout << DELETE << "Erasing user " << user->nickname << " from #" << this->name << RESET << std::endl;
 			}
 			else if (this->isOpInChannel(user))
 			{
 				this->operators.erase(it);
-				std::cout << QUIT << "Erasing operator " << user->nickname << " from #" << this->name << RESET << std::endl;
+				std::cout << DELETE << "Erasing operator " << user->nickname << " from #" << this->name << RESET << std::endl;
 			}
 		}
 		it++;
 	}
-	if (this->operators.empty())
+	if (this->operators.empty() && !this->users.empty())
 		this->allocNewOp(server);
+	else if (this->operators.empty() && this->users.empty())
+	{
+		std::cout << DELETE << "Channel " << this->name << " is empty, erasing it from server..." << RESET << std::endl;
+		server->channels.erase(server->getChannelByName(this->name));
+	}
 }
 
 void	Channel::allocNewOp(Server * server)
@@ -144,5 +183,30 @@ void	Channel::allocNewOp(Server * server)
 	this->users.erase(this->users.begin());
 	this->operators.push_back(newOp);
 	std::cout << YELLOW << "Adding " << newOp->nickname << " as new channel operator." << RESET << std::endl;
+	this->printChannelUsers(YELLOW);
 	irc_names(this, newOp, server);
+}
+
+std::vector<User *>::iterator	Channel::getUserByNick(std::string nickname)
+{
+	std::vector<User *>::iterator	it = this->users.begin();
+	std::vector<User *>::iterator	ite = this->users.end();
+
+	while (it != ite)
+	{
+		if ((*it)->nickname == nickname)
+			return it;
+		it++;
+	}
+
+	it = this->operators.begin();
+	ite = this->operators.end();
+
+	while (it != ite)
+	{
+		if ((*it)->nickname == nickname)
+			return it;
+		it++;
+	}
+	return this->users.end();
 }
