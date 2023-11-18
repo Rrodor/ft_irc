@@ -6,7 +6,7 @@
 /*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 14:04:04 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/16 16:41:02 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/18 12:04:33 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,7 @@
 #define PRIVMSG	"\033[33m[COMMAND][PRIVMSG] > "
 #define JOIN	"\033[33m[COMMAND][JOIN]"
 #define QUIT	"\033[33m[COMMAND][QUIT] > "
+#define DELETE "\033[31m[DELETE] : "
 
 #define BUFFSIZE	1024
 #define TRUE		1
@@ -81,6 +82,7 @@ void	irc_quit(char *message, User *user, Server *server);
 void	irc_nick(char *message, User *user, Server *server);
 void	irc_mode(char *message, User *user, Server *server);
 void	irc_topic(char *message, User *user, Server *server);
+void	irc_kick(char *message, User *user, Server *server);
 
 //logs.cpp
 void	send_log(int & fd, const char * message, Server * server);

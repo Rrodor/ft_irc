@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cparras <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/10 11:54:12 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/17 19:36:28 by cparras          ###   ########.fr       */
+/*   Updated: 2023/11/18 13:54:04 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,7 +123,7 @@ void	irc_join(char *message, User *user, Server *server)
 				send((*it2)->fd, rpl_join.c_str(), rpl_join.length(), 0);
 				send_log((*it2)->fd, rpl_join.c_str(), server);
 			}
-			(*it)->printChannelUsers();
+			(*it)->printChannelUsers(JOIN);
 			server->printServerChannels((*it)->name);
 			irc_names(*it, user, server);
 			return ;
@@ -137,7 +137,7 @@ void	irc_join(char *message, User *user, Server *server)
 	send(user->fd, rpl_join.c_str(), rpl_join.length(), 0);
 	send_log(user->fd, rpl_join.c_str(), server);
 
-	channel->printChannelUsers();
+	channel->printChannelUsers(JOIN);
 	server->printServerChannels(channel->name);
 	irc_names(channel, user, server);
 }
@@ -152,6 +152,8 @@ void	irc_privmsg(char *message, User *user, Server *server)
 		i++;
 	std::string dest = message;
 	dest = dest.substr(0, i - 1);
+	if (dest[0] == '#' && !(*server->getChannelByName(dest))->isInChannel(user) && !(*server->getChannelByName(dest))->isOpInChannel(user))
+		return;
 	std::cout << PRIVMSG << "sent to " << dest << std::endl;
 	message = message + i + 1;
 	std::cout << PRIVMSG << "\"" << message << "\"" << RESET << std::endl;
@@ -264,13 +266,22 @@ void	irc_quit(char *message, User *user, Server *server)
 
 	std::vector<Channel *>::iterator	it = server->channels.begin();
 	std::vector<Channel *>::iterator	ite = server->channels.end();
+	int									rc;
 
 	while (it != ite)
 	{
 		if ((*it)->isInChannel(user) || (*it)->isOpInChannel(user))
 		{
 			(*it)->channelSendLoop(rpl_quit, user->fd, server, 0);
-			(*it)->deleteChannelUser(user, server);
+			rc = (*it)->deleteChannelUser(user, server);
+			if (rc == 1)
+			{
+				std::string name = (*it)->name;
+				delete (*it);
+				std::cout << DELETE << "Succesfully deleted channel " << "#" << name << RESET << std::endl;
+			}
+			else
+				(*it)->printChannelUsers(QUIT);
 		}
 		it++;
 	}
@@ -415,4 +426,43 @@ void	irc_mode(char *message, User *user, Server *server)
 	std::string rpl_mode = ":127.0.0.1 " + user->nickname + " #" + message + "\r\n";
 	// send(user->fd, rpl_mode.c_str(), rpl_mode.length(), 0);
 	// send_log(user->fd, rpl_mode.c_str(), server);
+}
+
+void	irc_kick(char * message, User * user, Server * server)
+{
+	std::string	reason;
+	bool		hasReason = false;
+	int			rc;
+
+	std::cout << COMMAND << "KICK" << std::endl;
+
+	message = message + 5;
+	message = strtok(message, "\r\n");
+	std::string	rpl_kick = message;
+	if (rpl_kick.find(":") != std::string::npos)
+		hasReason = true;
+	std::string channelName = rpl_kick.substr(0, rpl_kick.find(' '));
+	rpl_kick.erase(0, rpl_kick.find(' ') + 1);
+	std::string kickedUser = rpl_kick.substr(0, rpl_kick.find(' '));
+	reason = "Kicked by operator";
+	if (hasReason == true)
+	{
+		rpl_kick.erase(0, rpl_kick.find(' ') + 2);
+		reason = rpl_kick;
+	}
+	channelName.erase(channelName.begin());
+	std::vector<Channel *>::iterator	it = server->getChannelByName(channelName);
+	if (it == server->channels.end())
+		return;
+	if (!(*it)->isOpInChannel(user))
+		return;
+	rpl_kick = ":" + user->nickname + " KICK #" + channelName + " " + kickedUser + " :" + reason + "\r\n";
+	(*it)->channelSendLoop(rpl_kick, user->fd, server, 1);
+	rc = (*it)->deleteChannelUser((*it)->getUserByNick(kickedUser), server);
+	if (rc == 1)
+	{
+		std::string name = (*it)->name;
+		delete (*it);
+		std::cout << DELETE << "Succesfully deleted channel " << "#" << name << RESET << std::endl;
+	}
 }
