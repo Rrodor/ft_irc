@@ -6,7 +6,7 @@
 /*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/10 11:54:12 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/18 16:48:15 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/18 19:06:33 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -429,11 +429,44 @@ void	irc_nick(char *message, User *user, Server *server)
 
 void	irc_mode(char *message, User *user, Server *server)
 {
+	bool	hasLastParam;
 	std::cout << COMMAND << "MODE" << std::endl;
 	message = message + 6;
-	std::string rpl_mode = ":127.0.0.1 " + user->nickname + " #" + message + "\r\n";
-	// send(user->fd, rpl_mode.c_str(), rpl_mode.length(), 0);
-	// send_log(user->fd, rpl_mode.c_str(), server);
+	std::string	rpl_mode = message;
+	std::string	channelName = rpl_mode.substr(0, rpl_mode.find(' '));
+	rpl_mode.erase(0, rpl_mode.find(' ') + 1);
+	std::string	mode = rpl_mode.substr(0, rpl_mode.find(' '));
+	if (channelName == mode)
+		return;
+	rpl_mode.erase(0, rpl_mode.find(' ') + 1);
+	std::string param = rpl_mode;
+	param != mode ? hasLastParam = true : hasLastParam = false;
+	std::string::iterator	it = mode.begin();
+	std::string::iterator	ite = mode.end();
+	std::cout << mode << std::endl;
+	while (it++ != ite)
+	{
+		std::cout << (*it) << std::endl;
+		if ((*it) == '-')
+			while ((*it) != '+' && (*it) != ' ' && it != ite)
+			{
+				if ((*server->getChannelByName(channelName))->mode.find((*it)))
+					(*server->getChannelByName(channelName))->mode.erase((*server->getChannelByName(channelName))->mode.find((*it)));
+				it++;
+			}
+		if ((*it) == '+')
+			while ((*it) != '-' && (*it) != ' ' && it != ite)
+			{
+				std::cout << ((*it)) << std::endl;
+				if (!(*server->getChannelByName(channelName))->mode.find((*it)))
+					(*server->getChannelByName(channelName))->mode.push_back((*it));
+				it++;
+			}
+	}
+	rpl_mode = ":127.0.0.1 " + user->nickname + " #" + channelName + " " + mode;
+	hasLastParam == true ? rpl_mode += " " + param + "\r\n" : rpl_mode += "\r\n";
+	send(user->fd, rpl_mode.c_str(), rpl_mode.length(), 0);
+	send_log(user->fd, rpl_mode.c_str(), server);
 }
 
 void	irc_kick(char * message, User * user, Server * server)
@@ -444,7 +477,7 @@ void	irc_kick(char * message, User * user, Server * server)
 
 	std::cout << COMMAND << "KICK" << std::endl;
 
-	message = message + 5;
+	message = message + 6;
 	message = strtok(message, "\r\n");
 	std::string	rpl_kick = message;
 	if (rpl_kick.find(':') != std::string::npos)
@@ -458,7 +491,6 @@ void	irc_kick(char * message, User * user, Server * server)
 		rpl_kick.erase(0, rpl_kick.find(' ') + 2);
 		reason = rpl_kick;
 	}
-	channelName.erase(channelName.begin());
 	std::vector<Channel *>::iterator	it = server->getChannelByName(channelName);
 	if (it == server->channels.end())
 		return;
