@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   interpretor.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
+/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:21:37 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/17 10:05:53 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/18 15:15:35 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ void	commands(char *message, User *user, Server *server)
 		irc_mode(message, user, server);
 	else if (strncmp(message , "QUIT", 4) == 0)
 		irc_quit(message, user, server);
-	else if (strncmp(message , "NICK", 4) == 0)	
+	else if (strncmp(message , "NICK", 4) == 0)
 		irc_nick(message, user, server);
 	else if (strncmp(message, "TOPIC", 5) == 0)
 	{
@@ -50,6 +50,8 @@ void	commands(char *message, User *user, Server *server)
 	}
 	else if (strncmp(message, "KICK", 4) == 0)
 		irc_kick(message, user, server);
+	else if (strncmp(message, "INVITE", 6) == 0)
+		irc_invite(message, user, server);
 	else
 		send(user->fd, "Command not found", 17, 0);
 }

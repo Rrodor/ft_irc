@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
+/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 16:24:05 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/18 11:32:00 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/18 15:26:32 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -160,4 +160,18 @@ std::vector<Channel *>::iterator	Server::getChannelByName(std::string name)
 		it++;
 	}
 	return this->channels.end();
+}
+
+std::vector<User *>::iterator	Server::getUserByName(std::string name)
+{
+	std::vector<User *>::iterator	it = this->users.begin();
+	std::vector<User *>::iterator	ite = this->users.end();
+
+	while (it != ite)
+	{
+		if ((*it)->nickname == name)
+			return it;
+		it++;
+	}
+	return this->users.end();
 }

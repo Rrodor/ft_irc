@@ -6,7 +6,7 @@
 /*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/10 11:54:12 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/18 16:10:11 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/18 16:13:48 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,6 +99,18 @@ void	irc_join_cases(char *message, User *user, Server *server)
 	}
 }
 
+void	join_rmInvit(Channel *channel, User *user)
+{
+	for (std::vector<User *>::iterator it = channel->invitedUsers.begin(); it != channel->invitedUsers.end(); ++it)
+	{
+		if ((*it)->fd == user->fd)
+		{
+			channel->invitedUsers.erase(it);
+			return ;
+		}
+	}
+}
+
 void	irc_join(char *message, User *user, Server *server)
 {
 	std::cout << COMMAND << "JOIN" << std::endl;
@@ -112,6 +124,7 @@ void	irc_join(char *message, User *user, Server *server)
 		if ((*it)->name == message)
 		{
 			(*it)->users.push_back(user);
+			join_rmInvit((*it), user);
 			std::string rpl_join = ":" + user->nickname + " JOIN #" + (*it)->name + "\r\n";
 			for (std::vector<User *>::iterator it2 = (*it)->users.begin(); it2 != (*it)->users.end(); ++it2)
 			{
@@ -132,7 +145,7 @@ void	irc_join(char *message, User *user, Server *server)
 	Channel *channel = new Channel(message);
 	channel->operators.push_back(user);
 	server->channels.push_back(channel);
-	
+
 	std::string rpl_join = ":" + user->nickname + " JOIN #" + channel->name + "\r\n";
 	send(user->fd, rpl_join.c_str(), rpl_join.length(), 0);
 	send_log(user->fd, rpl_join.c_str(), server);
@@ -335,11 +348,11 @@ void	irc_topic(char *message, User *user, Server *server)
 	std::ostringstream oss;
 	oss << t;
 	std::string time_str = oss.str();
-	
+
 	if (strchr(message, ':') == 0)
 	{
 		while (it != ite)
-		{	
+		{
 			if ((*it)->name == message + 7)
 			{
 				if ((*it)->topic == "")
@@ -489,5 +502,39 @@ void	irc_kick(char * message, User * user, Server * server)
 		std::string name = (*it)->name;
 		delete (*it);
 		std::cout << DELETE << "Succesfully deleted channel " << "#" << name << RESET << std::endl;
+	}
+}
+
+void	irc_invite(char *message, User *user, Server *server)
+{
+	int i = 0;
+	std::string nick;
+	std::string channel;
+	message = message + 7;
+	message = strtok(message, "\r\n");
+	std::string strmessage = message;
+	while (message[i] != ' ')
+		i++;
+	nick = strmessage.substr(0, i);
+	channel = strmessage.substr(i + 2, strmessage.length());
+	std::vector<Channel *>::iterator	it = server->getChannelByName(channel);
+	if (it == server->channels.end())
+	{
+		std::string rpl_not_in_channel = ":127.0.0.1 403 " + user->nickname + " #" + channel + " :No such channel\r\n";
+		send(user->fd, rpl_not_in_channel.c_str(), rpl_not_in_channel.length(), 0);
+	}
+	else
+	{
+		std::vector<User *>::iterator	it2 = server->getUserByName(nick);
+		if ((*it)->isInChannel(*it2)  || (*it)->isOpInChannel(*it2))
+		{
+			std::string rpl_already_in_channel = ":127.0.0.1 443 " + user->nickname + " #" + channel + " " + nick + " :is already on channel\r\n";
+			send(user->fd, rpl_already_in_channel.c_str(), rpl_already_in_channel.length(), 0);
+			return ;
+		}
+		std::string rpl_invite = ":" + user->nickname + " INVITE " + nick + " #" + channel + "\r\n";
+		send((*it2)->fd, rpl_invite.c_str(), rpl_invite.length(), 0);
+		send_log((*it2)->fd, rpl_invite.c_str(), server);
+		(*it)->invitedUsers.push_back(*it2);
 	}
 }
