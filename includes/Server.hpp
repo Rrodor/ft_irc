@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
+/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 15:41:33 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/18 11:31:04 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/18 15:25:01 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,8 @@ class Server
 
 		int			getServerSocket() const;
 		std::vector<Channel *>::iterator	getChannelByName(std::string name);
-		
+		std::vector<User *>::iterator		getUserByName(std::string name);
+
 		void		newUser(int & fd);
 		void		printServerChannels(std::string name) const;
 

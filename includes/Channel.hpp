@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
+/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:34:14 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/18 13:29:18 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/18 16:24:29 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ class Channel
 		std::string				lastTopicUpdate;
 		std::vector<User *>		users;
 		std::vector<User *>		operators;
+		std::vector<User *>		invitedUsers;
 
 		bool	isInChannel(User *user);
 		bool	isOpInChannel(User *user);

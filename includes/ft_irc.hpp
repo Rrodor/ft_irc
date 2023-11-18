@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_irc.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
+/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 14:04:04 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/18 12:04:33 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/18 16:35:28 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,7 @@ User	*findUser(int fd, Server * server);
 void	commands(char *message, User *user, Server *server);
 
 //commands.cpp
+void	join_rmInvit(Channel *channel, User *user);
 void	irc_join(char *message, User *user, Server *server);
 void	irc_privmsg(char *message, User *user, Server *server);
 void	irc_part(char *message, User *user, Server *server);
@@ -83,6 +84,7 @@ void	irc_nick(char *message, User *user, Server *server);
 void	irc_mode(char *message, User *user, Server *server);
 void	irc_topic(char *message, User *user, Server *server);
 void	irc_kick(char *message, User *user, Server *server);
+void	irc_invite(char *message, User *user, Server *server);
 
 //logs.cpp
 void	send_log(int & fd, const char * message, Server * server);
