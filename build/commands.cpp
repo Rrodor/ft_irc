@@ -6,7 +6,7 @@
 /*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/10 11:54:12 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/18 11:47:44 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/18 13:35:26 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -176,14 +176,22 @@ void	irc_quit(char *message, User *user, Server *server)
 
 	std::vector<Channel *>::iterator	it = server->channels.begin();
 	std::vector<Channel *>::iterator	ite = server->channels.end();
+	int									rc;
 
 	while (it != ite)
 	{
 		if ((*it)->isInChannel(user) || (*it)->isOpInChannel(user))
 		{
 			(*it)->channelSendLoop(rpl_quit, user->fd, server, 0);
-			(*it)->deleteChannelUser(user, server);
-			(*it)->printChannelUsers(QUIT);
+			rc = (*it)->deleteChannelUser(user, server);
+			if (rc == 1)
+			{
+				std::string name = (*it)->name;
+				delete (*it);
+				std::cout << DELETE << "Succesfully deleted channel " << "#" << name << RESET << std::endl;
+			}
+			else
+				(*it)->printChannelUsers(QUIT);
 		}
 		it++;
 	}
@@ -334,7 +342,8 @@ void	irc_mode(char *message, User *user, Server *server)
 void	irc_kick(char * message, User * user, Server * server)
 {
 	std::string	reason;
-	bool		hasReason = false;	
+	bool		hasReason = false;
+	int			rc;
 
 	std::cout << COMMAND << "KICK" << std::endl;
 
@@ -360,5 +369,11 @@ void	irc_kick(char * message, User * user, Server * server)
 		return;
 	rpl_kick = ":" + user->nickname + " KICK #" + channelName + " " + kickedUser + " :" + reason + "\r\n";
 	(*it)->channelSendLoop(rpl_kick, user->fd, server, 1);
-	(*it)->deleteChannelUser((*it)->getUserByNick(kickedUser), server);
+	rc = (*it)->deleteChannelUser((*it)->getUserByNick(kickedUser), server);
+	if (rc == 1)
+	{
+		std::string name = (*it)->name;
+		delete (*it);
+		std::cout << DELETE << "Succesfully deleted channel " << "#" << name << RESET << std::endl;
+	}
 }

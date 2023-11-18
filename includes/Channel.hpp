@@ -6,7 +6,7 @@
 /*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:34:14 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/18 11:53:48 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/18 13:29:18 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,8 +28,8 @@ class Channel
 		bool	isOpInChannel(User *user);
 		void	printChannelUsers(std::string logType) const;
 		void	channelSendLoop(std::string message, int & sFd, Server * server, int sendToHim);
-		void	deleteChannelUser(std::vector<User *>::iterator iterator, Server * server);
-		void	deleteChannelUser(User * user, Server * server);
+		int		deleteChannelUser(std::vector<User *>::iterator iterator, Server * server);
+		int		deleteChannelUser(User * user, Server * server);
 		void	allocNewOp(Server * server);
 		std::vector<User *>::iterator	getUserByNick(std::string nickname);
 
