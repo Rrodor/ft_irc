@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
+/*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:34:14 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/18 16:24:29 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/11/18 17:10:05 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ class Channel
 		std::string				name;
 		std::string				topic;
 		std::string				lastTopicUpdate;
+		std::string				mode;
 		std::vector<User *>		users;
 		std::vector<User *>		operators;
 		std::vector<User *>		invitedUsers;
