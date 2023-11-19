@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
+/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:36:08 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/18 13:29:47 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/18 18:22:22 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,24 @@ bool	Channel::isOpInChannel(User *user)
 	return false;
 }
 
+bool	Channel::isInvited(User *user)
+{
+	if (!user)
+		return false;
+
+	std::vector<User *>::iterator		it = this->invitedUsers.begin();
+	std::vector<User *>::iterator		ite = this->invitedUsers.end();
+
+	while (it != ite)
+	{
+		if (user == *it)
+			return true;
+		it++;
+	}
+	return false;
+}
+
+
 void	Channel::printChannelUsers(std::string logType) const
 {
 	std::string ulist = logType;
@@ -109,7 +127,7 @@ int		Channel::deleteChannelUser(std::vector<User *>::iterator iterator, Server *
 {
 	std::vector<User *>::iterator	it = this->users.begin();
 	std::vector<User *>::iterator	ite = this->users.end();
-	
+
 	if (this->isOpInChannel((*iterator)))
 	{
 		it = this->operators.begin();
@@ -148,7 +166,7 @@ int	Channel::deleteChannelUser(User * user, Server * server)
 {
 	std::vector<User *>::iterator	it = this->users.begin();
 	std::vector<User *>::iterator	ite = this->users.end();
-	
+
 	if (this->isOpInChannel(user))
 	{
 		it = this->operators.begin();
@@ -216,4 +234,32 @@ std::vector<User *>::iterator	Channel::getUserByNick(std::string nickname)
 		it++;
 	}
 	return this->users.end();
+}
+
+bool	Channel::isModeI() const
+{
+	if (this->mode.find('i') != std::string::npos)
+		return true;
+	return false;
+}
+
+bool	Channel::isModeT() const
+{
+	if (this->mode.find('t') != std::string::npos)
+		return true;
+	return false;
+}
+
+bool	Channel::isModeK() const
+{
+	if (this->mode.find('k') != std::string::npos)
+		return true;
+	return false;
+}
+
+bool	Channel::isModeL() const
+{
+	if (this->mode.find('l') != std::string::npos)
+		return true;
+	return false;
 }

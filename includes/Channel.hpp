@@ -6,7 +6,7 @@
 /*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:34:14 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/18 16:24:29 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/11/18 18:34:18 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,15 +18,24 @@
 class Channel
 {
 	public:
+		int						maxUsers;
+		int						nbUsers;
 		std::string				name;
 		std::string				topic;
 		std::string				lastTopicUpdate;
+		std::string				mode;
 		std::vector<User *>		users;
 		std::vector<User *>		operators;
 		std::vector<User *>		invitedUsers;
 
+		bool	isModeI() const;
+		bool	isModeT() const;
+		bool	isModeK() const;
+		bool	isModeL() const;
+
 		bool	isInChannel(User *user);
 		bool	isOpInChannel(User *user);
+		bool	isInvited(User *user);
 		void	printChannelUsers(std::string logType) const;
 		void	channelSendLoop(std::string message, int & sFd, Server * server, int sendToHim);
 		int		deleteChannelUser(std::vector<User *>::iterator iterator, Server * server);
