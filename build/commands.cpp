@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
+/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/10 11:54:12 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/19 13:54:07 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/19 15:24:35 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,10 +111,29 @@ void	join_rmInvit(Channel *channel, User *user)
 	}
 }
 
+char	*parse_join(char *message, std::string &passwd)
+{
+	int i = 0;
+	int j = 0;
+	while (message[i] != ' ' && message[i] != '\0')
+		i++;
+	passwd = message;
+	if (i + 1 < (int)passwd.length())
+		passwd = passwd.substr(i + 1, passwd.length());
+	else
+		passwd = "";
+	message[i] = '\0';
+	std::cout << "Channel name : |" << message << "|" << std::endl;
+	std::cout << "Password : |" << passwd << "|" << std::endl;
+	return message;
+}
+
 void	irc_join(char *message, User *user, Server *server)
 {
+	std::string passwd;
 	std::cout << COMMAND << "JOIN" << std::endl;
 	message = message + 5;
+	message = parse_join(message, passwd);
 	if (message[0] != '#')
 		return irc_join_cases(message, user, server);
 	message = message + 1;
@@ -140,6 +159,16 @@ void	irc_join(char *message, User *user, Server *server)
 					std::string rpl_channel_full = ":127.0.0.7 471 " + user->nickname + " #" + (*it)->name + " :Cannot join channel (+l)\r\n";
 					send(user->fd, rpl_channel_full.c_str(), rpl_channel_full.length(), 0);
 					send_log(user->fd, rpl_channel_full.c_str(), server);
+					return;
+				}
+			}
+			if ((*it)->isModeK())
+			{
+				if ((*it)->password != passwd)
+				{
+					std::string rpl_wrong_passwd = ":127.0.0.1 475 " + user->nickname + " #" + (*it)->name + " :Cannot join channel (+k)\r\n";
+					send(user->fd, rpl_wrong_passwd.c_str(), rpl_wrong_passwd.length(), 0);
+					send_log(user->fd, rpl_wrong_passwd.c_str(), server);
 					return;
 				}
 			}

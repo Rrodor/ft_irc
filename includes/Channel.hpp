@@ -6,7 +6,7 @@
 /*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:34:14 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/19 13:28:05 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/11/19 14:48:14 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@ class Channel
 		std::string				topic;
 		std::string				lastTopicUpdate;
 		std::string				mode;
+		std::string				password;
 		std::vector<User *>		users;
 		std::vector<User *>		operators;
 		std::vector<User *>		invitedUsers;
