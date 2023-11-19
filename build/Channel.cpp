@@ -6,7 +6,7 @@
 /*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:36:08 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/19 13:17:39 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/11/19 13:40:26 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -325,6 +325,7 @@ bool	Channel::isBestOp(User * user, std::vector<User *>::iterator iterator)
 
 bool	Channel::isModeI() const
 {
+	std::cout << "MODE : " << this->mode << std::endl;
 	if (this->mode.find('i') != std::string::npos)
 		return true;
 	return false;
