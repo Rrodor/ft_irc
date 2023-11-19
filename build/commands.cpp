@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
+/*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/10 11:54:12 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/19 13:19:32 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/11/19 12:37:31 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -484,6 +484,16 @@ void	irc_mode(char *message, User *user, Server *server)
 			std::cout << YELLOW << "Operator " << user->nickname << " try to set user " << param << " has new channel operator" << RESET << std::endl;
 			(*server->getChannelByName(channelName))->opUser(user, (*server->getChannelByName(channelName))->getUserByNick(param), server);
 				return;
+		}
+		else if ((*it) >= 'a' && (*it) <= 'z' && sign == 1)
+		{
+			if (!(*server->getChannelByName(channelName))->mode.find((*it)))
+				(*server->getChannelByName(channelName))->mode.push_back((*it));
+		}
+		else if ((*it) >= 'a' && (*it) <= 'z' && sign == 0)
+		{
+			if ((*server->getChannelByName(channelName))->mode.find((*it)))
+				(*server->getChannelByName(channelName))->mode.erase((*server->getChannelByName(channelName))->mode.find((*it)));
 		}
 		it++;
 	}
