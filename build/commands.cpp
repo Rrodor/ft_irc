@@ -6,7 +6,7 @@
 /*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/10 11:54:12 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/18 19:06:33 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/19 11:26:16 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -258,11 +258,9 @@ void	irc_names(Channel *channel, User *user, Server *server)
 		rpl_names += (*it)->nickname + " ";
 	}
 	rpl_names += "\r\n";
-	send(user->fd, rpl_names.c_str(), rpl_names.length(), 0);
-	send_log(user->fd, rpl_names.c_str(), server);
+	channel->channelSendLoop(rpl_names, user->fd, server, 1);
 	std::string rpl_endnames = ":127.0.0.1 366 " + user->nickname + " #" + channel->name + " :End of /NAMES list.\r\n";
-	send(user->fd, rpl_endnames.c_str(), rpl_endnames.length(), 0);
-	send_log(user->fd, rpl_endnames.c_str(), server);
+	channel->channelSendLoop(rpl_endnames, user->fd, server, 1);
 }
 
 void	irc_quit(char *message, User *user, Server *server)
@@ -441,27 +439,29 @@ void	irc_mode(char *message, User *user, Server *server)
 	rpl_mode.erase(0, rpl_mode.find(' ') + 1);
 	std::string param = rpl_mode;
 	param != mode ? hasLastParam = true : hasLastParam = false;
+
 	std::string::iterator	it = mode.begin();
 	std::string::iterator	ite = mode.end();
-	std::cout << mode << std::endl;
-	while (it++ != ite)
+	int						sign = -1;
+	while (it != ite)
 	{
-		std::cout << (*it) << std::endl;
-		if ((*it) == '-')
-			while ((*it) != '+' && (*it) != ' ' && it != ite)
-			{
-				if ((*server->getChannelByName(channelName))->mode.find((*it)))
-					(*server->getChannelByName(channelName))->mode.erase((*server->getChannelByName(channelName))->mode.find((*it)));
-				it++;
-			}
 		if ((*it) == '+')
-			while ((*it) != '-' && (*it) != ' ' && it != ite)
-			{
-				std::cout << ((*it)) << std::endl;
-				if (!(*server->getChannelByName(channelName))->mode.find((*it)))
-					(*server->getChannelByName(channelName))->mode.push_back((*it));
-				it++;
-			}
+			sign = 1;
+		else if ((*it) == '-')
+			sign = 0;
+		if ((*it) == 'o' && sign == 0)
+		{
+			std::cout << YELLOW << "Operator " << user->nickname << " try to remove operator privilege to " << param << RESET << std::endl;
+			(*server->getChannelByName(channelName))->deOpUser(user, (*server->getChannelByName(channelName))->getUserByNick(param), server);
+				return;
+		}
+		else if ((*it) == 'o' && sign == 1)
+		{
+			std::cout << YELLOW << "Operator " << user->nickname << " try to set user " << param << " has new channel operator" << RESET << std::endl;
+			(*server->getChannelByName(channelName))->opUser(user, (*server->getChannelByName(channelName))->getUserByNick(param), server);
+				return;
+		}
+		it++;
 	}
 	rpl_mode = ":127.0.0.1 " + user->nickname + " #" + channelName + " " + mode;
 	hasLastParam == true ? rpl_mode += " " + param + "\r\n" : rpl_mode += "\r\n";

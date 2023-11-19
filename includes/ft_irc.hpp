@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_irc.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
+/*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 14:04:04 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/18 16:35:28 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/11/19 11:16:25 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,6 @@
 
 #define RESET   "\033[0m"
 #define BLACK   "\033[30m"      /* Black */
-#define RED     "\033[31m[ERROR] : "      /* Red */
 #define GREEN   "\033[32m[SND_BUFFER]"      /* Green */
 #define YELLOW  "\033[33m[STATUS] : "      /* Yellow */
 #define COMMAND "\033[33m[COMMAND] > "
@@ -56,7 +55,8 @@
 #define PRIVMSG	"\033[33m[COMMAND][PRIVMSG] > "
 #define JOIN	"\033[33m[COMMAND][JOIN]"
 #define QUIT	"\033[33m[COMMAND][QUIT] > "
-#define DELETE "\033[31m[DELETE] : "
+#define DELETE	"\033[31m[DELETE] : "
+#define ERROR	"\033[31m[ERROR] : "
 
 #define BUFFSIZE	1024
 #define TRUE		1
