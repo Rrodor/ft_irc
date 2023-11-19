@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
+/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/10 11:54:12 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/19 15:08:45 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/19 17:34:06 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -187,12 +187,16 @@ void	irc_join(char *message, User *user, Server *server)
 			}
 			(*it)->printChannelUsers(JOIN);
 			server->printServerChannels((*it)->name);
+			std::string topic_mess = "TOPIC #" + (*it)->name + "\r\n";
+			char *topic = strdup(topic_mess.c_str());
+			irc_topic(topic, user, server);
 			irc_names(*it, user, server);
 			(*it)->nbUsers++;
 			return ;
 		}
 	}
 	Channel *channel = new Channel(message);
+	channel->lastTopicUpdateWho = user->nickname;
 	channel->nbUsers = 1;
 	channel->operators.push_back(user);
 	server->channels.push_back(channel);
@@ -361,100 +365,79 @@ void	irc_quit(char *message, User *user, Server *server)
 
 void	irc_topic(char *message, User *user, Server *server)
 {
-	std::vector<Channel *>::iterator	it = server->channels.begin();
+	std::string channel;
+	std::string topic;
+	int i = 0;
+	std::vector<Channel *>::iterator	it;
 	std::vector<Channel *>::iterator	ite = server->channels.end();
-	std::string targTopic;
-	std::string targTime;
 	std::time_t t = std::time(0);
 	std::ostringstream oss;
 	oss << t;
 	std::string time_str = oss.str();
 
-	if (strchr(message, ':') == 0)
+	std::cout << COMMAND << "TOPIC" << std::endl;
+	message = message + 6;
+	message = strtok(message, "\r\n");
+	while (message[i] != ' ' && message[i] != '\0')
+		i++;
+	channel = message;
+	channel = channel.substr(1, i - 1);
+	it = server->getChannelByName(channel);
+	if (it == ite)
 	{
-		while (it != ite)
-		{
-			if ((*it)->name == message + 7)
-			{
-				if ((*it)->topic == "")
-					targTopic = "No topic is set.";
-				else
-					targTopic = (*it)->topic;
-				targTime = (*it)->lastTopicUpdate;
-			}
-			it++;
-		}
-		message = message + 6;
-		std::string rpl_topic = ":127.0.0.1 332 " + user->nickname + " " + message + " :" + targTopic + "\r\n";
-		std::string rpl_time = ":127.0.0.1 333 " + user->nickname + " " + message + " " + user->nickname + " " + targTime + "\r\n";
-		send(user->fd, rpl_topic.c_str(), rpl_topic.length(), 0);
-		send_log(user->fd, rpl_topic.c_str(), server);
-		send(user->fd, rpl_time.c_str(), rpl_time.length(), 0);
-		send_log(user->fd, rpl_time.c_str(), server);
+		std::string rpl_not_valid_name = ":127.0.0.1 403 " + user->nickname + " #" + channel + " :No such channel\r\n";
+		send(user->fd, rpl_not_valid_name.c_str(), rpl_not_valid_name.length(), 0);
+		send_log(user->fd, rpl_not_valid_name.c_str(), server);
 		return ;
 	}
-	for (int i = 0; i < strlen(message); i++)
+	if (!(*it)->isInChannel(user) && !(*it)->isOpInChannel(user))
 	{
-		if (message[i] == ':')
+		std::string rpl_not_valid_name = ":127.0.0.1 442 " + user->nickname + " #" + channel + " :You're not on that channel\r\n";
+		send(user->fd, rpl_not_valid_name.c_str(), rpl_not_valid_name.length(), 0);
+		send_log(user->fd, rpl_not_valid_name.c_str(), server);
+		return ;
+	}
+	if (message[i] == '\0')
+	{
+		if ((*it)->topic == "")
 		{
-			message = strndup(message + i + 1, strlen(message) - i - 1);
-			break ;
+			std::string rpl_no_topic = ":127.0.0.1 331 " + user->nickname + " #" + channel + " :No topic is set\r\n";
+			send(user->fd, rpl_no_topic.c_str(), rpl_no_topic.length(), 0);
+			send_log(user->fd, rpl_no_topic.c_str(), server);
+			return ;
+		}
+		else
+		{
+			std::string rpl_topic = ":127.0.0.1 332 " + user->nickname + " #" + channel + " :" + (*it)->topic + "\r\n";
+			send(user->fd, rpl_topic.c_str(), rpl_topic.length(), 0);
+			send_log(user->fd, rpl_topic.c_str(), server);
+			std::string rpl_time = ":127.0.0.1 333 " + user->nickname + " #" + channel + " " + (*it)->lastTopicUpdateWho + " " + (*it)->lastTopicUpdateWhen + "\r\n";
+			send(user->fd, rpl_time.c_str(), rpl_time.length(), 0);
+			send_log(user->fd, rpl_time.c_str(), server);
+			return ;
 		}
 	}
-	char *targetChannel = strtok(message, " 	");
-	for (std::vector<Channel *>::iterator it = server->channels.begin(); it != server->channels.end(); ++it)
+	else
 	{
-		if ((*it)->name == targetChannel)
+		if ((*it)->isModeT())
 		{
-			if (!(*it)->isInChannel(user) && !(*it)->isOpInChannel(user))
+			if (!(*it)->isOpInChannel(user))
 			{
-				std::string rpl_topic = ":127.0.0.1 442 " + user->nickname + " #" + targetChannel + " :You're not on that channel\r\n";
-				send(user->fd, rpl_topic.c_str(), rpl_topic.length(), 0);
-				send_log(user->fd, rpl_topic.c_str(), server);
-				return ;
-			}
-			else if (!(*it)->isOpInChannel(user) && (*it)->isModeT())
-			{
-				std::string rpl_not_op = ":127.0.0.1 442 " + user->nickname + " #" + targetChannel + " :You're not channel operator\r\n";
+				std::string rpl_not_op = ":127.0.0.1 482 " + user->nickname + " #" + channel + " :You're not channel operator\r\n";
 				send(user->fd, rpl_not_op.c_str(), rpl_not_op.length(), 0);
 				send_log(user->fd, rpl_not_op.c_str(), server);
 				return ;
 			}
 		}
-	}
-	char *topic = strtok(NULL, "\r\n");
-	if (topic == NULL)
-		topic = strdup("");
-	for (std::vector<Channel *>::iterator it = server->channels.begin(); it != server->channels.end(); ++it)
-	{
-		if ((*it)->name == targetChannel)
-		{
-			(*it)->topic = topic;
-			(*it)->lastTopicUpdate = time_str;
-			std::string rpl_topic = ":" + user->nickname + " TOPIC #" + (*it)->name + " :" + topic + "\r\n";
-		}
-	}
-	std::string rpl_topic = ":" + user->nickname + " TOPIC #" + targetChannel + " :" + topic + "\r\n";
-	while (it != ite)
-	{
-		if ((*it)->name == targetChannel)
-		{
-			std::vector<User *>::iterator	it2 = (*it)->users.begin();
-			while (it2 != (*it)->users.end())
-			{
-				send((*it2)->fd, rpl_topic.c_str(), rpl_topic.length(), 0);
-				send_log((*it2)->fd, rpl_topic.c_str(), server);
-				it2++;
-			}
-			it2 = (*it)->operators.begin();
-			while (it2 != (*it)->operators.end())
-			{
-				send((*it2)->fd, rpl_topic.c_str(), rpl_topic.length(), 0);
-				send_log((*it2)->fd, rpl_topic.c_str(), server);
-				it2++;
-			}
-		}
-		it++;
+		message = message + i + 2;
+		topic = message;
+		(*it)->topic = topic;
+		(*it)->lastTopicUpdateWhen = time_str;
+		(*it)->lastTopicUpdateWho = user->nickname;
+		std::string rpl_topic = ":" + user->nickname + " TOPIC #" + channel + " :" + topic + "\r\n";
+		(*it)->channelSendLoop(rpl_topic, user->fd, server, 1);
+		std::string rpl_time = ":127.0.0.1 333 " + user->nickname + " #" + channel + " " + (*it)->lastTopicUpdateWho + " " + (*it)->lastTopicUpdateWhen + "\r\n";
+		(*it)->channelSendLoop(rpl_time, user->fd, server, 1);
 	}
 }
 

@@ -6,7 +6,7 @@
 /*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:36:08 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/19 13:40:26 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/11/19 17:09:40 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ Channel::Channel(std::string name)
 	std::time_t t = std::time(0);
 	std::ostringstream oss;
 	oss << t;
-	this->lastTopicUpdate = oss.str();
+	this->lastTopicUpdateWhen = oss.str();
 }
 
 Channel::~Channel()
