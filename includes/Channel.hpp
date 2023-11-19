@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
+/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:34:14 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/19 11:07:52 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/19 13:21:35 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,8 @@
 class Channel
 {
 	public:
+		int						maxUsers;
+		int						nbUsers;
 		std::string				name;
 		std::string				topic;
 		std::string				lastTopicUpdate;
@@ -26,9 +28,13 @@ class Channel
 		std::vector<User *>		operators;
 		std::vector<User *>		invitedUsers;
 
+		bool	isModeI() const;
+		bool	isModeT() const;
+		bool	isModeK() const;
+		bool	isModeL() const;
+
 		bool	isInChannel(User *user);
 		bool	isOpInChannel(User *user);
-		bool	isBestOp(User * user, std::vector<User *>::iterator iterator);
 		void	printChannelUsers(std::string logType) const;
 		void	channelSendLoop(std::string message, int & sFd, Server * server, int sendToHim);
 		int		deleteChannelUser(std::vector<User *>::iterator iterator, Server * server);

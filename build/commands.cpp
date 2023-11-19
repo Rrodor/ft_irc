@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
+/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/10 11:54:12 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/19 11:26:16 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/19 13:19:32 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,6 +123,26 @@ void	irc_join(char *message, User *user, Server *server)
 	{
 		if ((*it)->name == message)
 		{
+			if ((*it)->isModeI())
+			{
+				if (!(*it)->isInvited(user))
+				{
+					std::string rpl_not_invited = ":127.0.0.1 473 " + user->nickname + " #" + (*it)->name + " :Cannot join channel (+i)\r\n";
+					send(user->fd, rpl_not_invited.c_str(), rpl_not_invited.length(), 0);
+					send_log(user->fd, rpl_not_invited.c_str(), server);
+					return;
+				}
+			}
+			if ((*it)->isModeL())
+			{
+				if ((*it)->nbUsers >= (*it)->maxUsers)
+				{
+					std::string rpl_channel_full = ":127.0.0.7 471 " + user->nickname + " #" + (*it)->name + " :Cannot join channel (+l)\r\n";
+					send(user->fd, rpl_channel_full.c_str(), rpl_channel_full.length(), 0);
+					send_log(user->fd, rpl_channel_full.c_str(), server);
+					return;
+				}
+			}
 			(*it)->users.push_back(user);
 			join_rmInvit((*it), user);
 			std::string rpl_join = ":" + user->nickname + " JOIN #" + (*it)->name + "\r\n";
@@ -139,10 +159,12 @@ void	irc_join(char *message, User *user, Server *server)
 			(*it)->printChannelUsers(JOIN);
 			server->printServerChannels((*it)->name);
 			irc_names(*it, user, server);
+			(*it)->nbUsers++;
 			return ;
 		}
 	}
 	Channel *channel = new Channel(message);
+	channel->nbUsers = 1;
 	channel->operators.push_back(user);
 	server->channels.push_back(channel);
 
@@ -225,7 +247,7 @@ void	irc_part(char *message, User *user, Server *server)
 	rpl_part.erase(0, rpl_part.find(' ') + 2);
 	std::string	reason = rpl_part;
 	rpl_part = ":" + user->nickname + " PART #" + channelName + " :" + rpl_part + "\r\n";
-	
+
 	std::vector<Channel *>::iterator	it = server->channels.begin();
 	std::vector<Channel *>::iterator	ite = server->channels.end();
 
@@ -234,6 +256,7 @@ void	irc_part(char *message, User *user, Server *server)
 		if ((*it)->name == channelName)
 		{
 			(*it)->channelSendLoop(rpl_part, user->fd, server, 1);
+			(*it)->nbUsers--;
 			rc = (*it)->deleteChannelUser(user, server);
 			if (rc == 1)
 			{
@@ -279,6 +302,7 @@ void	irc_quit(char *message, User *user, Server *server)
 		if ((*it)->isInChannel(user) || (*it)->isOpInChannel(user))
 		{
 			(*it)->channelSendLoop(rpl_quit, user->fd, server, 0);
+			(*it)->nbUsers--;
 			rc = (*it)->deleteChannelUser(user, server);
 			if (rc == 1)
 			{
