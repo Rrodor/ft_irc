@@ -6,7 +6,7 @@
 /*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/10 11:54:12 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/19 12:37:31 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/19 12:47:26 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -487,16 +487,17 @@ void	irc_mode(char *message, User *user, Server *server)
 		}
 		else if ((*it) >= 'a' && (*it) <= 'z' && sign == 1)
 		{
-			if (!(*server->getChannelByName(channelName))->mode.find((*it)))
+			if ((*server->getChannelByName(channelName))->mode.find((*it)) == std::string::npos)
 				(*server->getChannelByName(channelName))->mode.push_back((*it));
 		}
 		else if ((*it) >= 'a' && (*it) <= 'z' && sign == 0)
 		{
-			if ((*server->getChannelByName(channelName))->mode.find((*it)))
+			if ((*server->getChannelByName(channelName))->mode.find((*it)) != std::string::npos)
 				(*server->getChannelByName(channelName))->mode.erase((*server->getChannelByName(channelName))->mode.find((*it)));
 		}
 		it++;
 	}
+	std::cout << (*server->getChannelByName(channelName))->mode << std::endl;
 	rpl_mode = ":127.0.0.1 " + user->nickname + " #" + channelName + " " + mode;
 	hasLastParam == true ? rpl_mode += " " + param + "\r\n" : rpl_mode += "\r\n";
 	send(user->fd, rpl_mode.c_str(), rpl_mode.length(), 0);
