@@ -6,7 +6,7 @@
 /*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/10 11:54:12 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/19 12:47:26 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/19 13:54:07 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -384,7 +384,7 @@ void	irc_topic(char *message, User *user, Server *server)
 				send_log(user->fd, rpl_topic.c_str(), server);
 				return ;
 			}
-			else if (!(*it)->isOpInChannel(user))
+			else if (!(*it)->isOpInChannel(user) && (*it)->isModeT())
 			{
 				std::string rpl_not_op = ":127.0.0.1 442 " + user->nickname + " #" + targetChannel + " :You're not channel operator\r\n";
 				send(user->fd, rpl_not_op.c_str(), rpl_not_op.length(), 0);
