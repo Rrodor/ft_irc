@@ -6,7 +6,7 @@
 /*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/10 11:54:12 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/18 18:49:07 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/11/19 13:19:32 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -281,11 +281,9 @@ void	irc_names(Channel *channel, User *user, Server *server)
 		rpl_names += (*it)->nickname + " ";
 	}
 	rpl_names += "\r\n";
-	send(user->fd, rpl_names.c_str(), rpl_names.length(), 0);
-	send_log(user->fd, rpl_names.c_str(), server);
+	channel->channelSendLoop(rpl_names, user->fd, server, 1);
 	std::string rpl_endnames = ":127.0.0.1 366 " + user->nickname + " #" + channel->name + " :End of /NAMES list.\r\n";
-	send(user->fd, rpl_endnames.c_str(), rpl_endnames.length(), 0);
-	send_log(user->fd, rpl_endnames.c_str(), server);
+	channel->channelSendLoop(rpl_endnames, user->fd, server, 1);
 }
 
 void	irc_quit(char *message, User *user, Server *server)
@@ -453,11 +451,46 @@ void	irc_nick(char *message, User *user, Server *server)
 
 void	irc_mode(char *message, User *user, Server *server)
 {
+	bool	hasLastParam;
 	std::cout << COMMAND << "MODE" << std::endl;
 	message = message + 6;
-	std::string rpl_mode = ":127.0.0.1 " + user->nickname + " #" + message + "\r\n";
-	// send(user->fd, rpl_mode.c_str(), rpl_mode.length(), 0);
-	// send_log(user->fd, rpl_mode.c_str(), server);
+	std::string	rpl_mode = message;
+	std::string	channelName = rpl_mode.substr(0, rpl_mode.find(' '));
+	rpl_mode.erase(0, rpl_mode.find(' ') + 1);
+	std::string	mode = rpl_mode.substr(0, rpl_mode.find(' '));
+	if (channelName == mode)
+		return;
+	rpl_mode.erase(0, rpl_mode.find(' ') + 1);
+	std::string param = rpl_mode;
+	param != mode ? hasLastParam = true : hasLastParam = false;
+
+	std::string::iterator	it = mode.begin();
+	std::string::iterator	ite = mode.end();
+	int						sign = -1;
+	while (it != ite)
+	{
+		if ((*it) == '+')
+			sign = 1;
+		else if ((*it) == '-')
+			sign = 0;
+		if ((*it) == 'o' && sign == 0)
+		{
+			std::cout << YELLOW << "Operator " << user->nickname << " try to remove operator privilege to " << param << RESET << std::endl;
+			(*server->getChannelByName(channelName))->deOpUser(user, (*server->getChannelByName(channelName))->getUserByNick(param), server);
+				return;
+		}
+		else if ((*it) == 'o' && sign == 1)
+		{
+			std::cout << YELLOW << "Operator " << user->nickname << " try to set user " << param << " has new channel operator" << RESET << std::endl;
+			(*server->getChannelByName(channelName))->opUser(user, (*server->getChannelByName(channelName))->getUserByNick(param), server);
+				return;
+		}
+		it++;
+	}
+	rpl_mode = ":127.0.0.1 " + user->nickname + " #" + channelName + " " + mode;
+	hasLastParam == true ? rpl_mode += " " + param + "\r\n" : rpl_mode += "\r\n";
+	send(user->fd, rpl_mode.c_str(), rpl_mode.length(), 0);
+	send_log(user->fd, rpl_mode.c_str(), server);
 }
 
 void	irc_kick(char * message, User * user, Server * server)
@@ -468,7 +501,7 @@ void	irc_kick(char * message, User * user, Server * server)
 
 	std::cout << COMMAND << "KICK" << std::endl;
 
-	message = message + 5;
+	message = message + 6;
 	message = strtok(message, "\r\n");
 	std::string	rpl_kick = message;
 	if (rpl_kick.find(':') != std::string::npos)
@@ -482,7 +515,6 @@ void	irc_kick(char * message, User * user, Server * server)
 		rpl_kick.erase(0, rpl_kick.find(' ') + 2);
 		reason = rpl_kick;
 	}
-	channelName.erase(channelName.begin());
 	std::vector<Channel *>::iterator	it = server->getChannelByName(channelName);
 	if (it == server->channels.end())
 		return;

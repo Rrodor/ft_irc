@@ -6,7 +6,7 @@
 /*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:36:08 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/18 18:22:22 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/11/19 13:17:39 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -234,6 +234,93 @@ std::vector<User *>::iterator	Channel::getUserByNick(std::string nickname)
 		it++;
 	}
 	return this->users.end();
+}
+
+void	Channel::opUser(User * user ,std::vector<User *>::iterator iterator, Server * server)
+{
+	std::vector<User *>::iterator	it = this->users.begin();
+	std::vector<User *>::iterator	ite = this->users.end();
+
+	if (this->isOpInChannel(user) == false)
+	{
+		std::cout << ERROR << "User " << user->nickname << " is not operator in channel # " << this->name << RESET << std::endl;
+		return;
+	}
+
+	while (it != ite)
+	{
+		if (it == iterator)
+		{
+			this->operators.push_back((*it));
+			this->users.erase(it);
+			break;
+		}
+		it++;
+	}
+	if (it != ite)
+	{
+		irc_names(this, (*it), server);
+		std::cout << YELLOW << "Operator " << user->nickname << " succesfully set " << (*iterator)->nickname << " as new channel operator in #" << this->name << RESET << std::endl;
+	}
+}
+
+void	Channel::deOpUser(User * user ,std::vector<User *>::iterator iterator, Server * server)
+{
+	std::vector<User *>::iterator	it = this->operators.begin();
+	std::vector<User *>::iterator	ite = this->operators.end();
+
+	if (this->isOpInChannel(user) == false)
+	{
+		std::cout << ERROR << "User " << user->nickname << " is not operator in channel # " << this->name << RESET << std::endl;
+		return;
+	}
+	if (this->isBestOp(user, iterator) == false)
+	{
+		std::cout << ERROR << "Operator " << user->nickname << " have less privileges than " << (*iterator)->nickname << " in channel #" << this->name << RESET << std::endl;
+		return;
+	}
+
+	while (it != ite)
+	{
+		if (it == iterator)
+		{
+			this->users.push_back((*it));
+			this->operators.erase(it);
+			break;
+		}
+		it++;
+	}
+	if (it != ite)
+	{
+		irc_names(this, (*it), server);
+		std::cout << YELLOW << "Operator " << user->nickname << " succesfully remove " << (*iterator)->nickname << " as channel operator in #" << this->name << RESET << std::endl;
+	}
+	if (this->operators.empty())
+		this->allocNewOp(server);
+}
+
+bool	Channel::isBestOp(User * user, std::vector<User *>::iterator iterator)
+{
+	int	userPos = 0;
+	int	contenderPos = 0;
+
+	std::vector<User *>::iterator	it = this->operators.begin();
+	std::vector<User *>::iterator	ite = this->operators.end();
+
+	if (user == (*iterator))
+		return true;
+
+	while (it != ite && userPos == 0 && contenderPos == 0)
+	{
+		if ((*it) == user)
+			userPos = 1;
+		if (it == iterator)
+			contenderPos = 1;
+		it++;
+	}
+	if (userPos == 1 && contenderPos == 0)
+		return true;
+	return false;
 }
 
 bool	Channel::isModeI() const
