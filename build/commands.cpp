@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
+/*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/10 11:54:12 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/19 15:24:35 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/11/19 15:08:45 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -514,7 +514,17 @@ void	irc_mode(char *message, User *user, Server *server)
 			(*server->getChannelByName(channelName))->opUser(user, (*server->getChannelByName(channelName))->getUserByNick(param), server);
 				return;
 		}
-		else if ((*it) >= 'a' && (*it) <= 'z' && sign == 1)
+		else if ((*it) == 'k' && sign == 0)
+		{
+			(*server->getChannelByName(channelName))->password.clear();
+			std::cout << YELLOW << "Operator " << user->nickname << " unset password on channel #" << channelName << RESET << std::endl;
+		}
+		else if ((*it) == 'k' && sign == 1)
+		{
+			(*server->getChannelByName(channelName))->password = param;
+			std::cout << YELLOW << "Operator " << user->nickname << " set password " << param << " has new channel password." << RESET << std::endl;
+		}
+		if ((*it) >= 'a' && (*it) <= 'z' && sign == 1)
 		{
 			if ((*server->getChannelByName(channelName))->mode.find((*it)) == std::string::npos)
 				(*server->getChannelByName(channelName))->mode.push_back((*it));
