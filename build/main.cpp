@@ -6,7 +6,7 @@
 /*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 14:03:01 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/15 14:35:20 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/20 17:00:19 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,23 +77,38 @@ int main(int argc, char const* argv[])
 				break;
 			else
 			{
-				close_conn = FALSE;
 				rc = recv(server->fds[i].fd, buffer, sizeof(buffer), 0);
+				read_log(server->fds[i].fd, buffer, server);
 				if (rc == 0)
 				{
-					std::cout << "User disconnected with id " << server->fds[i].fd << std::endl;
+					std::cout << YELLOW << "Receiving ctrl c from id " << server->fds[i].fd << ", erasing user." << RESET << std::endl;
 					close(server->fds[i].fd);
+					server->deleteUser(server->fds[i].fd);
+					server->checkChannel();
 					server->fds[i].fd = -1;
-					close_conn = TRUE;
+					std::cout << DELETE << "User succesfully deleted" << RESET << std::endl;
+					std::cout << DIVIDER << RESET << std::endl;
+					continue;
 				}
 				buffer[rc] = '\0';
-				read_log(server->fds[i].fd, buffer, server);
-				interpretor(buffer, server->fds[i].fd, server);
-				if (close_conn)
+				if (buffer[rc - 1] != '\n')
 				{
-					close(server->fds[i].fd);
-					server->fds[i].fd = -1;
+					std::string	tmp;
+					tmp += buffer;
+					while (buffer[rc - 1] != '\n')
+					{
+						rc = recv(server->fds[i].fd, buffer, sizeof(buffer), 0);
+						buffer[rc] = '\0';
+						read_log(server->fds[i].fd, buffer, server);
+						tmp += buffer;
+					}
+					read_log(server->fds[i].fd, (char *)tmp.c_str(), server);
+					interpretor((char *)tmp.c_str(), server->fds[i].fd, server);
+					std::cout << DIVIDER << RESET << std::endl;
+					continue;
 				}
+				else
+					interpretor(buffer, server->fds[i].fd, server);
 			}
 			std::cout << DIVIDER << RESET << std::endl;
 		}

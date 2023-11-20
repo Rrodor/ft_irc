@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
+/*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:34:14 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/19 17:08:59 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/11/20 13:36:31 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,7 @@ class Channel
 		void	channelSendLoop(std::string message, int & sFd, Server * server, int sendToHim);
 		int		deleteChannelUser(std::vector<User *>::iterator iterator, Server * server);
 		int		deleteChannelUser(User * user, Server * server);
+		int		deleteChannelUser(User * user, Server * server, int noErase);
 		void	allocNewOp(Server * server);
 		std::vector<User *>::iterator	getUserByNick(std::string nickname);
 		void	opUser(User * user, std::vector<User *>::iterator, Server * server);

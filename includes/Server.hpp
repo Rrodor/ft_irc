@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
+/*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 15:41:33 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/18 15:25:01 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/11/20 15:21:41 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,12 +30,15 @@ class Server
 		Server(const char * port, std::string password);
 		~Server();
 
-		int			getServerSocket() const;
+		int									getServerSocket() const;
 		std::vector<Channel *>::iterator	getChannelByName(std::string name);
 		std::vector<User *>::iterator		getUserByName(std::string name);
+		std::vector<User *>::iterator		getUserByFd(int & fd);
 
 		void		newUser(int & fd);
 		void		printServerChannels(std::string name) const;
+		void		checkChannel();
+		void		deleteUser(int & fd);
 
 		class WrongPasswordException : public std::exception
 		{

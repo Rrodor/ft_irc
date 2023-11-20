@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
+/*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 16:24:05 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/18 15:26:32 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/11/20 15:34:48 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,6 @@ void	Server::newUser(int & fd)
 	read_log(fd, buffer, this);
 	if (strncmp(buffer, "PASS", 4) == 0)
 	{
-		buffer[rc - 2] = '\0';
 		std::string pass = buffer + 5;
 		if (pass != this->password)
 		{
@@ -98,7 +97,6 @@ void	Server::newUser(int & fd)
 	}
 	if (strncmp(buffer, "NICK", 4) == 0)
 	{
-		buffer[rc - 2] = '\0';
 		newuser->nickname = strdup(buffer + 5);
 		rc = read(fd, buffer, BUFFSIZE);
 		buffer[rc] = '\0';
@@ -153,6 +151,8 @@ std::vector<Channel *>::iterator	Server::getChannelByName(std::string name)
 	std::vector<Channel *>::iterator	it = this->channels.begin();
 	std::vector<Channel *>::iterator	ite = this->channels.end();
 
+	if (it == ite)
+		return this->channels.end();
 	while (it != ite)
 	{
 		if ((*it)->name == name)
@@ -174,4 +174,49 @@ std::vector<User *>::iterator	Server::getUserByName(std::string name)
 		it++;
 	}
 	return this->users.end();
+}
+
+std::vector<User *>::iterator	Server::getUserByFd(int & fd)
+{
+	std::vector<User *>::iterator	it = this->users.begin();
+	std::vector<User *>::iterator	ite = this->users.end();
+
+	while (it != ite)
+	{
+		if ((*it)->fd == fd)
+			return it;
+		it++;
+	}
+	return this->users.end();
+}
+
+void	Server::checkChannel()
+{
+	std::vector<Channel *>::iterator	it = this->channels.begin();;
+
+	while (it != this->channels.end())
+	{
+		if ((*it)->operators.empty() && !(*it)->users.empty())
+			(*it)->allocNewOp(this);
+		if ((*it)->operators.empty() && (*it)->users.empty())
+		{
+			std::cout << DELETE << "Channel " << (*it)->name << " is empty, erasing it from server..." << RESET << std::endl;
+			it = this->channels.erase(it);
+		}
+		else
+			it++;
+	}
+}
+
+void	Server::deleteUser(int & fd)
+{
+	std::vector<User *>::iterator		user = this->getUserByFd(fd);
+	std::vector<Channel *>::iterator	it = this->channels.begin();
+
+	while (it != this->channels.end())
+	{
+		if ((*it)->isInChannel((*user)) || (*it)->isOpInChannel((*user)))
+			(*it)->deleteChannelUser((*user), this, 1);
+		it++;
+	}
 }

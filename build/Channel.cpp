@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
+/*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:36:08 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/19 17:09:40 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/11/20 13:37:31 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,6 @@ bool	Channel::isInvited(User *user)
 	}
 	return false;
 }
-
 
 void	Channel::printChannelUsers(std::string logType) const
 {
@@ -350,4 +349,35 @@ bool	Channel::isModeL() const
 	if (this->mode.find('l') != std::string::npos)
 		return true;
 	return false;
+}
+
+int	Channel::deleteChannelUser(User * user, Server * server, int noErase)
+{
+	std::vector<User *>::iterator	it = this->users.begin();
+	std::vector<User *>::iterator	ite = this->users.end();
+
+	if (this->isOpInChannel(user))
+	{
+		it = this->operators.begin();
+		ite = this->operators.end();
+	}
+
+	while (it != ite)
+	{
+		if (user == (*it))
+		{
+			if (this->isInChannel(user))
+			{
+				this->users.erase(it);
+				std::cout << DELETE << "Erasing user " << user->nickname << " from #" << this->name << RESET << std::endl;
+			}
+			else if (this->isOpInChannel(user))
+			{
+				this->operators.erase(it);
+				std::cout << DELETE << "Erasing operator " << user->nickname << " from #" << this->name << RESET << std::endl;
+			}
+		}
+		it++;
+	}
+	return noErase;
 }

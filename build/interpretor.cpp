@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   interpretor.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
+/*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:21:37 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/18 15:15:35 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/11/20 10:55:24 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,10 +44,7 @@ void	commands(char *message, User *user, Server *server)
 	else if (strncmp(message , "NICK", 4) == 0)
 		irc_nick(message, user, server);
 	else if (strncmp(message, "TOPIC", 5) == 0)
-	{
-		std::cout << COMMAND << "TOPIC" << std::endl;
 		irc_topic(message, user, server);
-	}
 	else if (strncmp(message, "KICK", 4) == 0)
 		irc_kick(message, user, server);
 	else if (strncmp(message, "INVITE", 6) == 0)

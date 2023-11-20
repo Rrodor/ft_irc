@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_irc.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
+/*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 14:04:04 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/19 13:28:47 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/11/20 15:44:12 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,7 @@
 
 #define PRIVMSG	"\033[33m[COMMAND][PRIVMSG] > "
 #define JOIN	"\033[33m[COMMAND][JOIN]"
+#define INVITE	"\033[33m[COMMAND][INVITE]"
 #define QUIT	"\033[33m[COMMAND][QUIT] > "
 #define DELETE	"\033[31m[DELETE] : "
 #define ERROR	"\033[31m[ERROR] : "
