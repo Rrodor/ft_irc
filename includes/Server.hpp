@@ -6,7 +6,7 @@
 /*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 15:41:33 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/20 15:21:41 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/20 20:48:43 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,8 @@ class Server
 		void		printServerChannels(std::string name) const;
 		void		checkChannel();
 		void		deleteUser(int & fd);
+		bool		haveN(std::string message) const;
+		std::string	writeLoop(int & fd, std::string buffer);
 
 		class WrongPasswordException : public std::exception
 		{

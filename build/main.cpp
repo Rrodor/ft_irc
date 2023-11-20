@@ -6,7 +6,7 @@
 /*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 14:03:01 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/20 17:00:19 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/20 20:57:24 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,6 @@ int main(int argc, char const* argv[])
 			else
 			{
 				rc = recv(server->fds[i].fd, buffer, sizeof(buffer), 0);
-				read_log(server->fds[i].fd, buffer, server);
 				if (rc == 0)
 				{
 					std::cout << YELLOW << "Receiving ctrl c from id " << server->fds[i].fd << ", erasing user." << RESET << std::endl;
@@ -91,21 +90,13 @@ int main(int argc, char const* argv[])
 					continue;
 				}
 				buffer[rc] = '\0';
-				if (buffer[rc - 1] != '\n')
+				std::string strmess = buffer;
+				read_log(server->fds[i].fd, buffer, server);
+				if (server->haveN(strmess) == false)
 				{
-					std::string	tmp;
-					tmp += buffer;
-					while (buffer[rc - 1] != '\n')
-					{
-						rc = recv(server->fds[i].fd, buffer, sizeof(buffer), 0);
-						buffer[rc] = '\0';
-						read_log(server->fds[i].fd, buffer, server);
-						tmp += buffer;
-					}
-					read_log(server->fds[i].fd, (char *)tmp.c_str(), server);
-					interpretor((char *)tmp.c_str(), server->fds[i].fd, server);
+					strmess = server->writeLoop(server->fds[i].fd, strmess);
+					interpretor((char*)strmess.c_str(), server->fds[i].fd, server);
 					std::cout << DIVIDER << RESET << std::endl;
-					continue;
 				}
 				else
 					interpretor(buffer, server->fds[i].fd, server);

@@ -6,7 +6,7 @@
 /*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 16:24:05 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/20 15:34:48 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/20 20:54:59 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -219,4 +219,30 @@ void	Server::deleteUser(int & fd)
 			(*it)->deleteChannelUser((*user), this, 1);
 		it++;
 	}
+}
+
+bool	Server::haveN(std::string message) const
+{
+	int	i = -1;
+
+	while (message[++i])
+	{
+		if (message[i] == '\n')
+			return true;
+	}
+	return false;
+}
+
+std::string	Server::writeLoop(int & fd, std::string str)
+{
+	int		rc;
+	char	buffer[BUFFSIZE + 1];
+
+	while (this->haveN(str) == false)
+	{
+		rc = recv(fd, buffer, sizeof(buffer), 0);
+		buffer[rc] = '\0';
+		str += buffer;
+	}
+	return str;
 }
