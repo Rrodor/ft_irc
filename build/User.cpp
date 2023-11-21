@@ -6,7 +6,7 @@
 /*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:26:34 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/20 15:14:03 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/21 10:16:59 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 User::User(int & fd)
 {
 	this->fd = fd;
+	this->conStep = 1;
 }
 
 User::~User()

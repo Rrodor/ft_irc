@@ -6,7 +6,7 @@
 /*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 14:03:01 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/20 20:57:24 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/21 12:27:47 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,8 +67,10 @@ int main(int argc, char const* argv[])
 						}
 						catch (const std::exception& e)
 						{
-							std::cerr << RED << "Error during user creation : " << std::endl;
+							std::cerr << ERROR << "Error during user creation : " << std::endl;
 							std::cerr <<  e.what() << RESET << std::endl;
+							server->deleteUser(newSd);
+							close(newSd);
 						}
 					}
 				}

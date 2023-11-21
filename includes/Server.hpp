@@ -6,7 +6,7 @@
 /*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 15:41:33 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/20 20:48:43 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/21 11:56:49 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,13 +36,33 @@ class Server
 		std::vector<User *>::iterator		getUserByFd(int & fd);
 
 		void		newUser(int & fd);
+		void		passUser(int & fd, const char * message, User * user);
+		void		capUser(int & fd, const char * message, User * user);
+		void		nickUser(int & fd, const char * message, User * user);
+		void		userUser(int & fd, const char * message, User * user);
 		void		printServerChannels(std::string name) const;
 		void		checkChannel();
 		void		deleteUser(int & fd);
 		bool		haveN(std::string message) const;
 		std::string	writeLoop(int & fd, std::string buffer);
+		int			checkNick(int & fd, std::string nickname);
 
-		class WrongPasswordException : public std::exception
+		class PassException : public std::exception
+		{
+			public:
+				virtual const char* what() const throw();
+		};
+		class CapException : public std::exception
+		{
+			public:
+				virtual const char* what() const throw();
+		};
+		class NickException : public std::exception
+		{
+			public:
+				virtual const char* what() const throw();
+		};
+		class UserException : public std::exception
 		{
 			public:
 				virtual const char* what() const throw();

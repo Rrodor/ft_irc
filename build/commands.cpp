@@ -6,7 +6,7 @@
 /*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/10 11:54:12 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/20 17:39:20 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/21 12:42:28 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -399,6 +399,17 @@ void	irc_nick(char *message, User *user, Server *server)
 	message = strtok(message, "\r\n");
 	std::string	oldNick = user->nickname;
 	user->nickname = message;
+	if (server->checkNick(user->fd, message))
+	{
+		std::string			rpl_error;
+		std::ostringstream	line;
+		int	rc = server->checkNick(user->fd, message);
+		rc == 432 ? line << rc << " " << user->nickname << " :Erroneus nickname\r\n" : line << rc << " " << user->nickname << " :Nickname is already in use\r\n";
+		rpl_error = ":127.0.0.1 " + line.str();
+		send(user->fd, rpl_error.c_str(), rpl_error.length(), 0);
+		send_log(user->fd, rpl_error.c_str(), server);
+		return;
+	}
 	std::string rpl_nick = ":" + oldNick + " NICK " + message + "\r\n";
 
 	std::vector<Channel *>::iterator	it = server->channels.begin();

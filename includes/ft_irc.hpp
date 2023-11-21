@@ -6,7 +6,7 @@
 /*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 14:04:04 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/20 15:44:12 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/21 10:49:30 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,6 @@
 #define BLUE    "\033[34m"      /* Blue */
 #define MAGENTA "\033[35m[COMMAND]"      /* Magenta */
 #define CYAN    "\033[36m[RCV_BUFFER]"      /* Cyan */
-#define RED     "\033[31m[ERROR] : "      /* Red */
 #define WHITE   "\033[37m"      /* White */
 #define DIVIDER "\033[33m------------------------------------------------------------"
 

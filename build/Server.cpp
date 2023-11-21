@@ -6,7 +6,7 @@
 /*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 16:24:05 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/20 20:54:59 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/21 12:28:54 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,53 +64,32 @@ void	Server::newUser(int & fd)
 	int i = 5;
 	char buffer[BUFFSIZE + 1];
 	User *newuser = new User(fd);
+	this->users.push_back(newuser);
 
 	rc = read(fd, buffer, BUFFSIZE);
 	buffer[rc] = '\0';
 	read_log(fd, buffer, this);
-	if (strncmp(buffer, "PASS", 4) == 0)
-	{
-		std::string pass = buffer + 5;
-		if (pass != this->password)
-		{
-			std::string message = ERR_PASSWDMISMATCH;
-			send(fd, message.c_str(), message.length(), 0);
-			send_log(fd, message.c_str(), this);
-			throw (WrongPasswordException());
-		}
-		rc = read(fd, buffer, BUFFSIZE);
-		buffer[rc] = '\0';
-		read_log(fd, buffer, this);
-	}
-	else
-	{
-		std::string message = ERR_PASSWDMISMATCH;
-		send(fd, message.c_str(), message.length(), 0);
-		send_log(fd, message.c_str(), this);
-		throw (WrongPasswordException());
-	}
-	if (strncmp(buffer, "CAP", 3) == 0)
-	{
-		rc = read(fd, buffer, BUFFSIZE);
-		buffer[rc] = '\0';
-		read_log(fd, buffer, this);
-	}
-	if (strncmp(buffer, "NICK", 4) == 0)
-	{
-		newuser->nickname = strdup(buffer + 5);
-		rc = read(fd, buffer, BUFFSIZE);
-		buffer[rc] = '\0';
-		read_log(fd, buffer, this);
-	}
-	if (strncmp(buffer, "USER", 4) == 0)
-	{
-		while (buffer[i] != ' ')
-			i++;
-		buffer[i] = '\0';
-		newuser->username = strdup(buffer + 5);
-		newuser->realname = strdup(buffer + i + 4);
-	}
-	this->users.push_back(newuser);
+	if (newuser->conStep == 1)
+		this->passUser(fd, buffer, newuser);
+
+	rc = read(fd, buffer, BUFFSIZE);
+	buffer[rc] = '\0';
+	read_log(fd, buffer, this);
+	if (newuser->conStep == 2)
+		this->capUser(fd, buffer, newuser);
+
+	rc = read(fd, buffer, BUFFSIZE);
+	buffer[rc] = '\0';
+	read_log(fd, buffer, this);
+	if (newuser->conStep == 3)
+		this->nickUser(fd, buffer, newuser);
+
+	rc = read(fd, buffer, BUFFSIZE);
+	buffer[rc] = '\0';
+	read_log(fd, buffer, this);
+	if (newuser->conStep == 4)
+		this->userUser(fd, buffer, newuser);
+	
 	//current_size++;
 
 	fds.push_back(pollfd());
@@ -128,9 +107,24 @@ Server::~Server()
 	shutdown(this->_serverSocket, SHUT_RDWR);
 }
 
-const char* Server::WrongPasswordException::what() const throw()
+const char* Server::PassException::what() const throw()
 {
-	return "Wrong password.";
+	return "Error during PASS command";
+}
+
+const char* Server::CapException::what() const throw()
+{
+	return "Error during CAP command";
+}
+
+const char* Server::NickException::what() const throw()
+{
+	return "Error during NICK command";
+}
+
+const char* Server::UserException::what() const throw()
+{
+	return "Error during USER command";
 }
 
 void		Server::printServerChannels(std::string name) const
@@ -219,6 +213,7 @@ void	Server::deleteUser(int & fd)
 			(*it)->deleteChannelUser((*user), this, 1);
 		it++;
 	}
+	delete (*user);
 }
 
 bool	Server::haveN(std::string message) const
@@ -245,4 +240,122 @@ std::string	Server::writeLoop(int & fd, std::string str)
 		str += buffer;
 	}
 	return str;
+}
+
+void	Server::passUser(int & fd, const char * message, User * user)
+{
+	std::string	rpl_error;
+	if (strncmp(message, "PASS", 4) != 0)
+	{
+		rpl_error = ":127.0.0.1 421 PASS :Unknown command, expected PASS\r\n";
+		send(user->fd, rpl_error.c_str(), rpl_error.length(), 0);
+		send_log(user->fd, rpl_error.c_str(), this);
+	}
+	std::string	pass = message + 5;
+	if (pass.empty())
+	{
+		rpl_error = ":127.0.0.1 461 PASS :Not enough parameters\r\n";
+		send(user->fd, rpl_error.c_str(), rpl_error.length(), 0);
+		send_log(user->fd, rpl_error.c_str(), this);
+	}
+	if (pass != this->password)
+	{
+		rpl_error = ":127.0.0.1 464 PASS :Password incorrect\r\n";
+		send(user->fd, rpl_error.c_str(), rpl_error.length(), 0);
+		send_log(user->fd, rpl_error.c_str(), this);
+	}
+	if (rpl_error.empty() == false)
+		throw (PassException());
+	user->conStep++;
+}
+
+void	Server::capUser(int & fd, const char * message, User * user)
+{
+	std::string	rpl_error;
+	if (strncmp(message, "CAP", 3) != 0)
+	{
+		rpl_error = ":127.0.0.1 421 CAP :Unknown command, expected CAP\r\n";
+		send(user->fd, rpl_error.c_str(), rpl_error.length(), 0);
+		send_log(user->fd, rpl_error.c_str(), this);
+	}
+	if (rpl_error.empty() == false)
+		throw (CapException());
+	user->conStep++;
+}
+
+void	Server::nickUser(int & fd, const char * message, User * user)
+{
+	std::string	rpl_error;
+	if (strncmp(message, "NICK", 4) != 0)
+	{
+		rpl_error = ":127.0.0.1 421 NICK :Unknown command, expected NICK\r\n";
+		send(user->fd, rpl_error.c_str(), rpl_error.length(), 0);
+		send_log(user->fd, rpl_error.c_str(), this);
+	}
+	std::string	nick = message + 5;
+	if (nick.empty())
+	{
+		rpl_error = ":127.0.0.1 431 NICK :No nickname given\r\n";
+		send(user->fd, rpl_error.c_str(), rpl_error.length(), 0);
+		send_log(user->fd, rpl_error.c_str(), this);
+	}
+	if (this->checkNick(fd, nick) != 0)
+	{
+		std::ostringstream	line;
+		int	rc = this->checkNick(fd, nick);
+		rc == 432 ? line << rc << " :Erroneus nickname\r\n" : line << rc << " :Nickname is already in use\r\n";
+		rpl_error = ":127.0.0.1 " + line.str();
+		send(user->fd, rpl_error.c_str(), rpl_error.length(), 0);
+		send_log(user->fd, rpl_error.c_str(), this);
+	}
+	if (rpl_error.empty() == false)
+		throw (NickException());
+	user->conStep++;
+	user->nickname = nick;
+}
+
+void	Server::userUser(int & fd, const char * message, User * user)
+{
+	std::string	rpl_error;
+	if (strncmp(message, "USER", 4) != 0)
+	{
+		rpl_error = ":127.0.0.1 421 USER :Unknown command, expected USER\r\n";
+		send(user->fd, rpl_error.c_str(), rpl_error.length(), 0);
+		send_log(user->fd, rpl_error.c_str(), this);
+	}
+	std::string	line = message + 5;
+	if (line.empty() || line.find(':') == std::string::npos)
+	{
+		rpl_error = ":127.0.0.1 461 USER :Not enough parameters\r\n";
+		send(user->fd, rpl_error.c_str(), rpl_error.length(), 0);
+		send_log(user->fd, rpl_error.c_str(), this);
+	}
+	std::string	username = line.substr(0, line.find(' '));
+	line.erase(0, line.find(' ') + 1);
+	if ((line[0] != '0' || line[1] != ' ' || line[2] != '*') && rpl_error.empty())
+	{
+		rpl_error = ":127.0.0.1 461 USER :Not enough parameters\r\n";
+		send(user->fd, rpl_error.c_str(), rpl_error.length(), 0);
+		send_log(user->fd, rpl_error.c_str(), this);
+	}
+	line.erase(0, 5);
+	std::string	realname = line;
+	if (rpl_error.empty() == false)
+		throw (UserException());
+	user->username = username;
+	user->realname = realname;
+}
+
+int		Server::checkNick(int & fd, std::string nickname)
+{
+	if (nickname.find('#') != std::string::npos || nickname.find(' ') != std::string::npos || nickname.find(':') != std::string::npos)
+		return 432;
+	std::vector<User *>::iterator	it = this->users.begin();
+	while (it != this->users.end())
+	{
+		if ((*it)->fd != fd && (*it)->nickname == nickname)
+			return 433;
+		it++;
+	}
+	return 0;
 }

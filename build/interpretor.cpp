@@ -6,7 +6,7 @@
 /*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:21:37 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/20 10:55:24 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/21 12:31:51 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,11 @@ void	commands(char *message, User *user, Server *server)
 	else if (strncmp(message, "INVITE", 6) == 0)
 		irc_invite(message, user, server);
 	else
-		send(user->fd, "Command not found", 17, 0);
+	{
+		std::string	rpl_error = ":127.0.0.1 421 " + user->nickname + " :Unknown command\r\n";
+		send(user->fd, rpl_error.c_str(), rpl_error.length(), 0);
+		send_log(user->fd, rpl_error.c_str(), server);
+	}
 }
 
 void	interpretor(char *message, int fd, Server * server)
