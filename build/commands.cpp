@@ -6,7 +6,7 @@
 /*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/10 11:54:12 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/21 13:35:57 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/21 13:50:23 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -297,7 +297,12 @@ void	irc_quit(char *message, User *user, Server *server)
 	std::cout << COMMAND << "QUIT" << std::endl;
 	message = message + 6;
 	message = strtok(message, "\r\n");
-	std::string rpl_quit = ":" + user->nickname + " QUIT :Quit: " + message + "\r\n";
+	std::string msg;
+	if (message == NULL)
+		msg = "Quit";
+	else
+		std::string	msg = message;
+	std::string rpl_quit = ":" + user->nickname + " QUIT :Quit: " + msg + "\r\n";
 
 	std::vector<Channel *>::iterator	it = server->channels.begin();
 	std::vector<Channel *>::iterator	ite = server->channels.end();
