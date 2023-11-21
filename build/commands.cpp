@@ -6,7 +6,7 @@
 /*   By: babreton <babreton@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/10 11:54:12 by rrodor            #+#    #+#             */
-/*   Updated: 2023/11/21 12:42:28 by babreton         ###   ########.fr       */
+/*   Updated: 2023/11/21 13:35:57 by babreton         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,6 +84,13 @@ void	irc_join(char *message, User *user, Server *server)
 	std::string passwd;
 	std::cout << COMMAND << "JOIN" << std::endl;
 	message = message + 5;
+	if (message[0] == '\0')
+    {
+        std::string err_need_more_param = ":127.0.0.1 461 " + user->nickname + " JOIN :Not enough parameters\r\n";
+        send(user->fd, err_need_more_param.c_str(), err_need_more_param.length(), 0);
+        send_log(user->fd, err_need_more_param.c_str(), server);
+        return ;
+    }
 	message = parse_join(message, passwd);
 	if (message[0] != '#')
 		return irc_join_cases(message, user, server);
@@ -166,6 +173,13 @@ void	irc_privmsg(char *message, User *user, Server *server)
 	std::cout << COMMAND << "PRIVMSG" << std::endl;
 	message = message + 8;
 	message = strtok(message, "\r\n");
+	if (message[0] == '\0')
+    {
+        std::string err_need_more_param = ":127.0.0.1 461 " + user->nickname + " PRIVMSG :Not enough parameters\r\n";
+        send(user->fd, err_need_more_param.c_str(), err_need_more_param.length(), 0);
+        send_log(user->fd, err_need_more_param.c_str(), server);
+        return ;
+    }
 	int	i = 0;
 	while (message[i] != ':')
 		i++;
@@ -203,6 +217,10 @@ void	irc_privmsg(char *message, User *user, Server *server)
 				return ;
 			}
 		}
+		std::string err_no_such_channel = "127.0.0.1 403 " + user->nickname + " #" + dest + " :No such channel\r\n";
+		send(user->fd, err_no_such_channel.c_str(), err_no_such_channel.length(), 0);
+		send_log(user->fd, err_no_such_channel.c_str(), server);
+		return ;
 	}
 	else
 	{
@@ -216,6 +234,10 @@ void	irc_privmsg(char *message, User *user, Server *server)
 				return ;
 			}
 		}
+		std::string err_no_such_nick = "127.0.0.1 401 " + user->nickname + " " + dest + " :No such nickname\r\n";
+		send(user->fd, err_no_such_nick.c_str(), err_no_such_nick.length(), 0);
+		send_log(user->fd, err_no_such_nick.c_str(), server);
+		return ;
 	}
 }
 
@@ -328,6 +350,13 @@ void	irc_topic(char *message, User *user, Server *server)
 
 	std::cout << COMMAND << "TOPIC" << std::endl;
 	message = message + 6;
+	if (message[0] == '\0')
+    {
+        std::string err_need_more_param = ":127.0.0.1 461 " + user->nickname + " TOPIC :Not enough parameters\r\n";
+        send(user->fd, err_need_more_param.c_str(), err_need_more_param.length(), 0);
+        send_log(user->fd, err_need_more_param.c_str(), server);
+        return ;
+    }
 	message = strtok(message, "\r\n");
 	while (message[i] != ' ' && message[i] != '\0')
 		i++;
@@ -507,6 +536,34 @@ void	irc_kick(char * message, User * user, Server * server)
 	rpl_kick.erase(0, rpl_kick.find(' ') + 1);
 	std::string kickedUser = rpl_kick.substr(0, rpl_kick.find(' '));
 	reason = "Kicked by operator";
+	if (channelName.empty() || channelName == kickedUser)
+	{
+		std::string rpl_error = ":127.0.0.1 461 " + user->nickname + " KICK :Not enough parameters\r\n";
+		send(user->fd, rpl_error.c_str(), rpl_error.length(), 0);
+		send_log(user->fd, rpl_error.c_str(), server);
+		return;
+	}
+	if (server->getChannelByName(channelName) == server->channels.end())
+	{
+		std::string rpl_error = ":127.0.0.1 403 " + user->nickname + " #" + channelName + " :No such channel\r\n";
+		send(user->fd, rpl_error.c_str(), rpl_error.length(), 0);
+		send_log(user->fd, rpl_error.c_str(), server);
+		return;
+	}
+	if (!(*server->getChannelByName(channelName))->isOpInChannel((*server->getUserByName(kickedUser))) && !(*server->getChannelByName(channelName))->isInChannel((*server->getUserByName(kickedUser))))
+	{
+		std::string rpl_error = ":127.0.0.1 403 " + user->nickname + " " + kickedUser + " #" + channelName + " :They aren't on that channel\r\n";
+		send(user->fd, rpl_error.c_str(), rpl_error.length(), 0);
+		send_log(user->fd, rpl_error.c_str(), server);
+		return;
+	}
+	if (!(*server->getChannelByName(channelName))->isOpInChannel(user) && !(*server->getChannelByName(channelName))->isInChannel(user))
+	{
+		std::string rpl_error = ":127.0.0.1 442 " + user->nickname + " #" + channelName + " :You're not on that channel\r\n";
+		send(user->fd, rpl_error.c_str(), rpl_error.length(), 0);
+		send_log(user->fd, rpl_error.c_str(), server);
+		return;
+	}
 	if (hasReason == true)
 	{
 		rpl_kick.erase(0, rpl_kick.find(' ') + 2);
@@ -518,6 +575,9 @@ void	irc_kick(char * message, User * user, Server * server)
 	if (!(*it)->isOpInChannel(user) || !(*it)->isBestOp(user, (*it)->getUserByNick(kickedUser)))
 	{
 		std::cout << ERROR << user->nickname << " is not operator or have less privileges than " << kickedUser << ", can't kick it." << RESET << std::endl;
+		std::string rpl_error = ":127.0.0.1 403 " + user->nickname + " #" + channelName + " :You're not channel operator\r\n";
+		send(user->fd, rpl_error.c_str(), rpl_error.length(), 0);
+		send_log(user->fd, rpl_error.c_str(), server);
 		return;
 	}
 	rpl_kick = ":" + user->nickname + " KICK #" + channelName + " " + kickedUser + " :" + reason + "\r\n";
